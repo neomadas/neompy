@@ -1,0 +1,14 @@
+{# Copyright Neomadas, Inc. All rights reserved. #}
+
+{% load neodash_webtools %}
+<label id="{% _kt 'mdc-text-field-'|add:widget.name %}" class="{% _kt 'mdc-text-field' %} {% _kt 'mdc-text-field--outlined' %}">
+  <span class="{% _kt 'mdc-notched-outline' %}">
+    <span class="{% _kt 'mdc-notched-outline__leading' %}"></span>
+    <span class="{% _kt 'mdc-notched-outline__notch' %}">
+      <span class="{% _kt 'mdc-floating-label' %}">{{ field.label }}</span>
+    </span>
+    <span class="{% _kt 'mdc-notched-outline__trailing' %}"></span>
+  </span>
+  <input class="{% _kt 'mdc-text-field__input' %}" type="{{ widget.type }}" name="{{ widget.name }}"{% if widget.value != None %} value="{{ widget.value|stringformat:'s' }}"{% endif %}{% include "django/forms/widgets/attrs.html" %}>
+</label>
+<script>new mdc.textField.MDCTextField(document.getElementById("{% _kt 'mdc-text-field-'|add:widget.name %}"))</script>
