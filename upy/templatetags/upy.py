@@ -13,10 +13,16 @@ class UpyImportNode(Node):
     super().__init__(*args, **kwargs)
 
   def render(self, context):
-    # TODO: improve using cache
     subpath = self.template.resolve(context)
     fullpath = (construct_relative_path(self.origin.template_name, subpath),)
-    template = context.template.engine.select_template(fullpath)
+
+    cache = context.render_context.dicts[0].setdefault(self, {})
+    template = cache.get(fullpath)
+
+    if not template:
+      template = context.template.engine.select_template(fullpath)
+      cache[fullpath] = template
+
     return template.render(context)
 
 
@@ -26,6 +32,5 @@ def upy_import(parser: Parser, token: Token):
   if len(bits) < 2:
     raise template.TemplateSyntaxError(
       f'{bits[0]} tag takes at least one argument: the asset path')
-  bits[1] = construct_relative_path(
-    parser.origin.template_name, bits[1])
+  bits[1] = construct_relative_path(parser.origin.template_name, bits[1])
   return UpyImportNode(parser.compile_filter(bits[1]))
