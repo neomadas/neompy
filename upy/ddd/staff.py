@@ -27,26 +27,52 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""This module is under construction.
-It's used to mark the domain role for classes and models defined in the domain.
-"""
+from __future__ import annotations
 
-class Stuff:
-  def __init__(self, **kwargs):
-    self.__dict__.update(kwargs)
+import re
 
+from typing import Final, Optional
 
-class Entity(Stuff):
-  """TODO: Domain model entity."""
+from .shared import ValueObject
 
 
-class ValueObject(Stuff):
-  """TODO: Domain model value object."""
+class Phone(ValueObject):
+  country: Optional[int]
+  area: Optinal[int]
+  number: Final[int]
 
 
-class Service:
-  """TODO: Domain service declaration."""
+class Mobile(Phone):
+  REGEX = r'^\(\+(\d{2})\) (\d{3}(?:-\d{3}){2})$'
+
+  def __str__(self):
+    part1 = int(self.number / 10 ** 6)
+    part2 = int((self.number % 10 ** 6) / 10 ** 3)
+    part3 = int(self.number % 10 ** 3)
+    return f'(+{self.country}) {part1}-{part2}-{part3}'
+
+  @staticmethod
+  def Make(fmt: str) -> Mobile:
+    match = re.match(Mobile.REGEX, fmt)
+    if not match:
+      raise ValueError(f'Invalid mobile phone {fmt}. User (+xx) xxx-xxx-xxx')
+
+    groups = match.groups()
+    country = int(groups[0])
+    area = None
+    number = int(groups[1].replace('-', ''))
+
+    return Mobile(country=country, area=area, number=number)
 
 
-class Repository:
-  """TODO: Domain model entity repository."""
+class Email(ValueObject):
+  address: str
+
+  REGEX = r'^\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b$'
+
+  def __init__(self, address: str):
+    if not re.match(self.REGEX, address):
+      raise ValueError(f'Invalid email address format {address}')
+    self.address = address
+
+  def __str__(self): return self.address
