@@ -31,7 +31,10 @@
 It's used to mark the domain role for classes and models defined in the domain.
 """
 
-class Stuff:
+from abc import ABC
+
+
+class Stuff(ABC):
   def __init__(self, **kwargs):
     self.__dict__.update(kwargs)
 
@@ -44,9 +47,9 @@ class ValueObject(Stuff):
   """TODO: Domain model value object."""
 
 
-class Service:
+class Service(Stuff):
   """TODO: Domain service declaration."""
 
 
-class Repository:
+class Repository(Stuff):
   """TODO: Domain model entity repository."""
