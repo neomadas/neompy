@@ -33,10 +33,11 @@ import typing
 def AutoWire(cls):
   def new_decoration(new_method, type_hints):
     def wrapper(cls, *args, **kwargs):
-      self = new_method(cls, *args, **kwargs)
+      self = new_method(cls)
       for name, key in type_hints.items():
         call = manager.pairs[key]
         setattr(self, name, call())
+      self.__init__(*args, **kwargs)
       return self
     return wrapper
   type_hints = typing.get_type_hints(cls)
