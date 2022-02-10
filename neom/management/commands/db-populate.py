@@ -34,6 +34,20 @@ from django.conf import settings
 
 
 class Command(BaseCommand):
+  """
+  Idea:
+    Define populator classes like
+
+    class SomePopulator(Populator):
+      def populate(self):
+        ...
+        self.previous_populator.items[...]
+
+        self.next_populator.send(...)
+
+    Pass constructed items to reuse the instances.
+  """
+
   help = 'Populate database using python scripts with ORM support.'
 
   def handle(self, *unused_args, **unsed_options):
