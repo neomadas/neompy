@@ -43,6 +43,10 @@ class Entity(Stuff):
   """TODO: Domain model entity."""
 
 
+class Identity:
+  """TODO: Domain model annotation for identity."""
+
+
 class ValueObject(Stuff):
   """TODO: Domain model value object."""
 
