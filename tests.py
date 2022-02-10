@@ -1,4 +1,4 @@
-from upy.core.ioc import AutoWire, manager
+from neom.core.ioc import AutoWire, manager
 
 
 class Interface:
