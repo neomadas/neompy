@@ -35,7 +35,7 @@ from django.template.loader_tags import construct_relative_path
 register = Library()
 
 
-class UpyImportNode(Node):
+class NeomImportNode(Node):
 
   def __init__(self, template: FilterExpression, *args, **kwargs):
     self.template = template
@@ -56,10 +56,10 @@ class UpyImportNode(Node):
 
 
 @register.tag
-def upy_import(parser: Parser, token: Token):
+def neom_import(parser: Parser, token: Token):
   bits = token.split_contents()
   if len(bits) < 2:
     raise template.TemplateSyntaxError(
       f'{bits[0]} tag takes at least one argument: the asset path')
   bits[1] = construct_relative_path(parser.origin.template_name, bits[1])
-  return UpyImportNode(parser.compile_filter(bits[1]))
+  return NeomImportNode(parser.compile_filter(bits[1]))

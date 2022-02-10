@@ -31,10 +31,10 @@ from django.apps import AppConfig
 from django.conf import settings
 
 
-class UpyConfig(AppConfig):
+class NeomConfig(AppConfig):
   default_auto_field = 'django.db.models.BigAutoField'
-  name = 'upy'
+  name = 'neom'
 
   def ready(self):
-    from upy.core.ioc import manager
-    settings.UPY_IOC_WIRES(manager)
+    from neom.core.ioc import manager
+    settings.NEOM_IOC_WIRES(manager)
