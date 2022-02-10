@@ -27,6 +27,8 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.from pathlib import Path
 
+from pathlib import Path
+
 from django.core.management.base import BaseCommand, CommandError
 from django.core.management.base import CommandParser
 from django.conf import settings
