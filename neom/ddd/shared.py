@@ -31,7 +31,7 @@
 It's used to mark the domain role for classes and models defined in the domain.
 """
 
-from abc import ABC
+from abc import ABC, abstractmethod
 
 
 class Stuff(ABC):
@@ -57,3 +57,11 @@ class Service(Stuff):
 
 class Repository(Stuff):
   """TODO: Domain model entity repository."""
+
+
+class Action:
+  """TODO: Domain model entity repository."""
+
+  @abstractmethod
+  def Apply(self):
+    raise NotImplementedError
