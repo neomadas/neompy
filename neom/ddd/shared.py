@@ -60,8 +60,12 @@ class Repository(Stuff):
 
 
 class Action:
-  """TODO: Domain model entity repository."""
+  """TODO: Domain model action service."""
 
   @abstractmethod
   def Apply(self):
     raise NotImplementedError
+
+
+class QuerySet:
+  """TODO: Domain model query set application."""
