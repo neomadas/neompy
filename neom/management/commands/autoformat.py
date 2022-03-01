@@ -38,6 +38,11 @@ try:
 except ImportError as error:
   raise CommandError('autopep8 package not installed') from error
 
+try:
+  import isort
+except ImportError as error:
+  raise CommandError('isort package not installed') from error
+
 
 class Command(BaseCommand):
   help = 'Apply pep8 format each python file.'
@@ -57,4 +62,6 @@ class Command(BaseCommand):
     paths = ([options['file']] if options['file'] else basedir.glob('**/*.py'))
 
     for path in paths:
-      autopep8.main(('autopep8', '-i', '-a', '-a', str(path)))
+      name = str(path)
+      autopep8.main(('autopep8', '-i', '-a', '-a', name))
+      isort.file(name, quiet=True)
