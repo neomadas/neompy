@@ -31,7 +31,9 @@
 It's used to mark the domain role for classes and models defined in the domain.
 """
 
-from abc import ABC, abstractmethod
+from abc import ABC, ABCMeta, abstractmethod
+from types import CodeType, FunctionType
+from typing import _Final, Generic, Type, TypeVar
 
 
 class Stuff(ABC):
@@ -39,16 +41,89 @@ class Stuff(ABC):
     self.__dict__.update(kwargs)
 
 
-class Entity(Stuff):
+class MetaEntity(ABCMeta):
+  def __init__(cls, cname, bases, namespace):
+    if '__annotations__' in namespace:
+      initlines = ['def __init__(self']
+      initbody = []
+      slots = []
+      for name, kind in namespace['__annotations__'].items():
+        initlines.append(f', {name}: {kind.__name__}')
+        initbody.append(f'\n  self.{name} = {name}')
+        slots.append(name)
+        if isinstance(kind, IdentityAlias):
+          initbody.append(f'\n  self._identity = self.{name}')
+      initlines.append('):\n  """Entity init"""')
+      initlines.extend(initbody)
+      initlines.append('\n  self.Validate()')
+      initcode = compile(''.join(initlines), '<ddd.shared>', 'exec')
+      initfunc = FunctionType(InitCodeType(initcode.co_consts[1]), globals(), '__init__', None, cls.__init__.__closure__)
+      super().__init__(cname, bases, namespace)
+      cls.__init__ = initfunc
+      cls.__slots__ = tuple(slots)
+      def _identity(self) -> ID: return self._identity
+      cls.identity = _identity
+
+  def __repr__(cls):
+    items = cls.__annotations__.items()
+    props = ('{}={!r}'.format(name, prop) for name, prop in items)
+    return '{}<{}>'.format(cls.__name__, ', '.join(props))
+
+
+def InitCodeType(c):
+  return CodeType(c.co_argcount, c.co_posonlyargcount,
+    c.co_kwonlyargcount, c.co_nlocals,
+    c.co_stacksize, c.co_flags, c.co_code, c.co_consts, c.co_names,
+    c.co_varnames, c.co_filename, c.co_name, c.co_firstlineno,
+    c.co_lnotab, c.co_freevars + ('__class__',), c.co_cellvars)
+
+
+T = TypeVar('T')
+ID = TypeVar('ID')
+
+class Entity(Generic[T, ID], metaclass=MetaEntity):
   """TODO: Domain model entity."""
+
+  def __init__(self):
+    super().__init__()
+
+  def Validate(self):
+    """Execute domain member validations."""
+
+  def identity(self) -> ID:
+    return NotImplemented
+
+  def SameIdentityAs(other: T) -> bool:
+    return NotImplemented
+
+
+class ValueObject(Stuff):
+  """TODO: Domain model value object."""
 
 
 class Identity:
   """TODO: Domain model annotation for identity."""
 
+  def __class_getitem__(cls, member: Type[object]):
+    return IdentityAlias(member)
 
-class ValueObject(Stuff):
-  """TODO: Domain model value object."""
+
+class IdentityAlias:
+
+  __slots__ = ('_kind', '__name__')
+
+  def __init__(self, kind: Type[object]):
+    self._kind = kind
+    self.__name__ = kind.__name__
+
+  def __repr__(self):
+    return f'{self._kind}'
+
+  def __instancecheck__(self, obj):
+    return self.__subclasscheck__(type(obj))
+
+  def __subclasscheck__(self, cls):
+    return cls == self._kind
 
 
 class Service(Stuff):
