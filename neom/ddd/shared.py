@@ -57,7 +57,13 @@ class MetaEntity(ABCMeta):
       initlines.extend(initbody)
       initlines.append('\n  self.Validate()')
       initcode = compile(''.join(initlines), '<ddd.shared>', 'exec')
-      initfunc = FunctionType(InitCodeType(initcode.co_consts[1]), globals(), '__init__', None, cls.__init__.__closure__)
+      initfunc = FunctionType(
+        InitCodeType(
+          initcode.co_consts[1]),
+        globals(),
+        '__init__',
+        None,
+        cls.__init__.__closure__)
       super().__init__(cname, bases, namespace)
       cls.__init__ = initfunc
       cls.__slots__ = tuple(slots)
@@ -72,14 +78,15 @@ class MetaEntity(ABCMeta):
 
 def InitCodeType(c):
   return CodeType(c.co_argcount, c.co_posonlyargcount,
-    c.co_kwonlyargcount, c.co_nlocals,
-    c.co_stacksize, c.co_flags, c.co_code, c.co_consts, c.co_names,
-    c.co_varnames, c.co_filename, c.co_name, c.co_firstlineno,
-    c.co_lnotab, c.co_freevars + ('__class__',), c.co_cellvars)
+                  c.co_kwonlyargcount, c.co_nlocals,
+                  c.co_stacksize, c.co_flags, c.co_code, c.co_consts, c.co_names,
+                  c.co_varnames, c.co_filename, c.co_name, c.co_firstlineno,
+                  c.co_lnotab, c.co_freevars + ('__class__',), c.co_cellvars)
 
 
 T = TypeVar('T')
 ID = TypeVar('ID')
+
 
 class Entity(Generic[T, ID], metaclass=MetaEntity):
   """TODO: Domain model entity."""
