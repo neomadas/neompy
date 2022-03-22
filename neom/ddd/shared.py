@@ -33,7 +33,8 @@ It's used to mark the domain role for classes and models defined in the domain.
 
 from abc import ABC, ABCMeta, abstractmethod
 from types import CodeType, FunctionType
-from typing import _Final, Generic, Type, TypeVar
+from typing import (Generic, NoReturn, Type, TypeVar, _GenericAlias, cast,
+                    get_type_hints)
 
 
 class Stuff(ABC):
@@ -47,12 +48,15 @@ class MetaEntity(ABCMeta):
       initlines = ['def __init__(self']
       initbody = []
       slots = []
-      for name, kind in namespace['__annotations__'].items():
+      idname = None
+      for name, kind in get_type_hints(cls).items():
+        if isinstance(kind, _GenericAlias):
+          kind = cast(_GenericAlias, kind).__origin__
         initlines.append(f', {name}: {kind.__name__}')
         initbody.append(f'\n  self.{name} = {name}')
         slots.append(name)
         if isinstance(kind, IdentityAlias):
-          initbody.append(f'\n  self._identity = self.{name}')
+          idname = name
       initlines.append('):\n  """Entity init"""')
       initlines.extend(initbody)
       initlines.append('\n  self.Validate()')
@@ -67,8 +71,13 @@ class MetaEntity(ABCMeta):
       super().__init__(cname, bases, namespace)
       cls.__init__ = initfunc
       cls.__slots__ = tuple(slots)
-      def _identity(self) -> ID: return self._identity
-      cls.identity = _identity
+      if idname:
+        identity = FunctionType(
+          compile(f'def identity(self) -> ID: return self.{idname}',
+            '<ddd.shared>', 'exec').co_consts[1], globals())
+      else:
+        def identity(self) -> NoReturn: raise NoIdentityError(cls)
+      cls.identity = identity
 
   def __repr__(cls):
     items = cls.__annotations__.items()
@@ -123,14 +132,24 @@ class IdentityAlias:
     self._kind = kind
     self.__name__ = kind.__name__
 
-  def __repr__(self):
-    return f'{self._kind}'
+  def __instancecheck__(self, obj): return self.__subclasscheck__(type(obj))
 
-  def __instancecheck__(self, obj):
-    return self.__subclasscheck__(type(obj))
+  def __subclasscheck__(self, cls): return cls == self._kind
 
-  def __subclasscheck__(self, cls):
-    return cls == self._kind
+  def __mro_entries__(self, bases): raise TypeError(
+    f'Cannot subclass {self!r}')
+
+  def __repr__(self): return f'{self._kind}'
+
+  def __reduce__(self):
+    return self._name
+
+  def __call__(self, *args, **kwds):
+    raise TypeError(f'Cannot instantiate {self!r}')
+
+  def __instancecheck__(self, obj): raise TypeError('Cannot instance check')
+
+  def __subclasscheck__(self, cls): raise TypeError('Cannot subclass check')
 
 
 class Service(Stuff):
@@ -151,3 +170,35 @@ class Action:
 
 class QuerySet:
   """TODO: Domain model query set application."""
+
+
+class Error(Exception):
+  """DDD Errors"""
+
+
+class DomainError(Error):
+  """Entities, repositories and services base error for user cases.
+  This exceptions does not break the workflow."""
+
+
+class NoIdentityError(DomainError):
+  """Notify the use"""
+
+  def __init__(self, cls):
+    self._cls = cls
+
+  def __str__(self): return f'{self._cls.__qualname__} without identity'
+
+
+class RepositoryError(DomainError):
+  """Find, Store, Delete, Remove errors"""
+
+
+class ServiceError(DomainError):
+  pass
+
+
+class NotFoundError(RepositoryError):
+  """Raised when Repository.Find doest not foun.
+  Connection and transaction errors not included.
+  """
