@@ -32,6 +32,7 @@ It's used to mark the domain role for classes and models defined in the domain.
 """
 
 from abc import ABC, ABCMeta, abstractmethod
+from functools import lru_cache, wraps
 from types import CodeType, FunctionType
 from typing import (Generic, NoReturn, Type, TypeVar, _GenericAlias, cast,
                     get_type_hints)
@@ -62,11 +63,7 @@ class MetaEntity(ABCMeta):
       initlines.append('\n  self.Validate()')
       initcode = compile(''.join(initlines), '<ddd.shared>', 'exec')
       initfunc = FunctionType(
-        InitCodeType(
-          initcode.co_consts[1]),
-        globals(),
-        '__init__',
-        None,
+        InitCodeType(initcode.co_consts[1]), globals(), '__init__', None,
         cls.__init__.__closure__)
       super().__init__(cname, bases, namespace)
       cls.__init__ = initfunc
@@ -74,7 +71,7 @@ class MetaEntity(ABCMeta):
       if idname:
         identity = FunctionType(
           compile(f'def identity(self) -> ID: return self.{idname}',
-            '<ddd.shared>', 'exec').co_consts[1], globals())
+                  '<ddd.shared>', 'exec').co_consts[1], globals())
       else:
         def identity(self) -> NoReturn: raise NoIdentityError(cls)
       cls.identity = identity
@@ -117,15 +114,47 @@ class ValueObject(Stuff):
   """TODO: Domain model value object."""
 
 
-class Identity:
-  """TODO: Domain model annotation for identity."""
+def _idcache(fn=None, /, *, typed=False):
+  def wrapper(fn):
+    cached = lru_cache(typed=typed)(fn)
+    _idcache.clears.append(cached.cache_clear)
+    @wraps(fn)
+    def inner(*args, **kwds):
+      try:
+        return cached(*args, **kwds)
+      except TypeError:
+        pass
+      return fn(*args, **kwds)
+    return inner
+  if fn is not None:
+    return wrapper(fn)
+  return wrapper
 
+
+_idcache.clears = []
+
+
+class Final:
+  __slots__ = ('__weakref__',)
+  def __init_subclass__(self, /, *_, **ks):
+    if '_root' not in ks:
+      raise TypeError("Cannot subclass")
+
+
+class Immutable:
+  __slots__ = ()
+  def __copy__(self): return self
+  def __deepcopy__(self, _): return self
+
+
+class Identity(Immutable):
+  """TODO: Domain model annotation for identity."""
+  @_idcache
   def __class_getitem__(cls, member: Type[object]):
     return IdentityAlias(member)
 
 
-class IdentityAlias:
-
+class IdentityAlias(Final, Immutable, _root=True):
   __slots__ = ('_kind', '__name__')
 
   def __init__(self, kind: Type[object]):
