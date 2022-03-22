@@ -34,13 +34,24 @@ It's used to mark the domain role for classes and models defined in the domain.
 from abc import ABC, ABCMeta, abstractmethod
 from functools import lru_cache, wraps
 from types import CodeType, FunctionType
-from typing import (Generic, NoReturn, Type, TypeVar, _GenericAlias, cast,
-                    get_type_hints)
+from typing import (
+  Callable,
+  Generic,
+  NoReturn,
+  Type,
+  TypeVar,
+  _GenericAlias,
+  cast,
+  get_type_hints)
 
 
 class Stuff(ABC):
   def __init__(self, **kwargs):
     self.__dict__.update(kwargs)
+
+
+T = TypeVar('T')
+ID = TypeVar('ID')
 
 
 class MetaEntity(ABCMeta):
@@ -69,12 +80,21 @@ class MetaEntity(ABCMeta):
       cls.__init__ = initfunc
       cls.__slots__ = tuple(slots)
       if idname:
-        identity = FunctionType(
-          compile(f'def identity(self) -> ID: return self.{idname}',
-                  '<ddd.shared>', 'exec').co_consts[1], globals())
+        annotations = cls.identity.__annotations__
+        cls.identity = FunctionType(
+        compile(
+          f'def identity(self) -> ID: return self.{idname}\n',
+          '<ddd.shared>',
+          'single').co_consts[1],
+        globals())
+        cls.identity.__annotations__ = annotations
       else:
-        def identity(self) -> NoReturn: raise NoIdentityError(cls)
-      cls.identity = identity
+        cls.identity = MetaEntity.identity(cls)
+
+  @staticmethod
+  def identity(cls) -> Callable[[], ID]:
+    def wrapper(_) -> NoReturn: raise NoIdentityError(cls)
+    return wrapper
 
   def __repr__(cls):
     items = cls.__annotations__.items()
@@ -88,10 +108,6 @@ def InitCodeType(c):
                   c.co_stacksize, c.co_flags, c.co_code, c.co_consts, c.co_names,
                   c.co_varnames, c.co_filename, c.co_name, c.co_firstlineno,
                   c.co_lnotab, c.co_freevars + ('__class__',), c.co_cellvars)
-
-
-T = TypeVar('T')
-ID = TypeVar('ID')
 
 
 class Entity(Generic[T, ID], metaclass=MetaEntity):
@@ -118,6 +134,7 @@ def _idcache(fn=None, /, *, typed=False):
   def wrapper(fn):
     cached = lru_cache(typed=typed)(fn)
     _idcache.clears.append(cached.cache_clear)
+
     @wraps(fn)
     def inner(*args, **kwds):
       try:
@@ -136,6 +153,7 @@ _idcache.clears = []
 
 class Final:
   __slots__ = ('__weakref__',)
+
   def __init_subclass__(self, /, *_, **ks):
     if '_root' not in ks:
       raise TypeError("Cannot subclass")
