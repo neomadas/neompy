@@ -31,6 +31,8 @@
 It's used to mark the domain role for classes and models defined in the domain.
 """
 
+from __future__ import annotations
+
 from abc import ABC, ABCMeta, abstractmethod
 from functools import lru_cache, wraps
 from types import CodeType, FunctionType
@@ -52,6 +54,7 @@ class Stuff(ABC):
 
 T = TypeVar('T')
 ID = TypeVar('ID')
+ORD = -3
 
 
 class MetaEntity(ABCMeta):
@@ -74,7 +77,7 @@ class MetaEntity(ABCMeta):
       initlines.append('\n  self.Validate()')
       initcode = compile(''.join(initlines), '<ddd.shared>', 'exec')
       initfunc = FunctionType(
-        InitCodeType(initcode.co_consts[1]), globals(), '__init__', None,
+        InitCodeType(initcode.co_consts[ORD]), globals(), '__init__', None,
         cls.__init__.__closure__)
       super().__init__(cname, bases, namespace)
       cls.__init__ = initfunc
@@ -85,7 +88,7 @@ class MetaEntity(ABCMeta):
         compile(
           f'def identity(self) -> ID: return self.{idname}\n',
           '<ddd.shared>',
-          'single').co_consts[1],
+          'single').co_consts[ORD],
         globals())
         cls.identity.__annotations__ = annotations
       else:
@@ -124,6 +127,13 @@ class Entity(Generic[T, ID], metaclass=MetaEntity):
 
   def SameIdentityAs(other: T) -> bool:
     return NotImplemented
+
+  @classmethod
+  def Make(cls, **kwargs) -> Entity:
+    entity = cls.__new__(cls)
+    for key, value in kwargs.items():
+      setattr(entity, key, value)
+    return entity
 
 
 class ValueObject(Stuff):

@@ -40,3 +40,12 @@ class EntityTestCase(TestCase):
       bar: int
     foo = FooEntity(1)
     self.assertRaises(NoIdentityError, foo.identity)
+
+  def test_make_creation(self):
+    class FooEntity(Entity):
+      bar: int
+      name: str
+    foo = FooEntity.Make(bar=1, name='foo')
+    self.assertIsInstance(foo, FooEntity)
+    self.assertEqual(foo.bar, 1)
+    self.assertEqual(foo.name, 'foo')
