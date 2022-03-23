@@ -37,7 +37,7 @@ from .shared import ValueObject
 
 class Phone(ValueObject):
   country: Optional[int]
-  area: Optinal[int]
+  area: Optional[int]
   number: Final[int]
 
 
@@ -69,9 +69,8 @@ class Email(ValueObject):
 
   REGEX = r'^\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b$'
 
-  def __init__(self, address: str):
-    if not re.match(self.REGEX, address):
+  def Validate(self):
+    if not re.match(self.REGEX, self.address):
       raise ValueError(f'Invalid email address format {address}')
-    self.address = address
 
   def __str__(self): return self.address

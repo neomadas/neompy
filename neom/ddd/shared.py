@@ -37,7 +37,7 @@ from abc import ABC, ABCMeta, abstractmethod
 from functools import lru_cache, wraps
 from types import CodeType, FunctionType
 from typing import (Callable, Generic, NoReturn, Type, TypeVar, _GenericAlias,
-                    cast, get_type_hints)
+                    cast, get_type_hints, _SpecialForm)
 
 
 class Stuff(ABC):
@@ -129,8 +129,59 @@ class Entity(Generic[T, ID], metaclass=MetaEntity):
     return entity
 
 
-class ValueObject(Stuff):
+class MetaValueObject(ABCMeta):
+  def __init__(cls, cname, bases, namespace):
+    if '__annotations__' in namespace:
+      initlines = ['def __init__(self']
+      initbody = []
+      slots = []
+      idname = None
+      for name, kind in get_type_hints(cls).items():
+        if isinstance(kind, _GenericAlias):
+          kind = cast(_GenericAlias, kind).__origin__
+        if isinstance(kind, _SpecialForm):
+          initlines.append(f', {name}: {kind}')
+        else:
+          initlines.append(f', {name}: {kind.__name__}')
+        initbody.append(f'\n  self.{name} = {name}')
+        slots.append(name)
+        if isinstance(kind, IdentityAlias):
+          raise TypeError('Use Identity in ValueObject es invalid')
+      initlines.append('):')
+      initlines.extend(initbody)
+      initlines.append('\n  self.Validate()')
+      initcode = compile(''.join(initlines), '<ddd.shared>', 'exec')
+      initfunc = FunctionType(
+        InitCodeType(initcode.co_consts[ORD]), globals(), '__init__', None,
+        cls.__init__.__closure__)
+      super().__init__(cname, bases, namespace)
+      cls.__init__ = initfunc
+      cls.__slots__ = tuple(slots)
+
+  def __repr__(cls):
+    items = cls.__annotations__.items()
+    props = ('{}={!r}'.format(name, prop) for name, prop in items)
+    return '{}<{}>'.format(cls.__name__, ', '.join(props))
+
+
+class ValueObject(metaclass=MetaValueObject):
   """TODO: Domain model value object."""
+
+  def __init__(self):
+    super().__init__()
+
+  def Validate(self):
+    """Execute domain member validations."""
+
+  def __eq__(self, other: ValueObject) -> bool:
+    return all(getattr(self, name) == getattr(other, name) for name in self.__slots__)
+
+  @classmethod
+  def Make(cls, **kwargs) -> ValueObject:
+    valueObject = cls.__new__(cls)
+    for key, value in kwargs.items():
+      setattr(valueObject, key, value)
+    return valueObject
 
 
 def _idcache(fn=None, /, *, typed=False):
