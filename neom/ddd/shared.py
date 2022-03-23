@@ -36,15 +36,8 @@ from __future__ import annotations
 from abc import ABC, ABCMeta, abstractmethod
 from functools import lru_cache, wraps
 from types import CodeType, FunctionType
-from typing import (
-  Callable,
-  Generic,
-  NoReturn,
-  Type,
-  TypeVar,
-  _GenericAlias,
-  cast,
-  get_type_hints)
+from typing import (Callable, Generic, NoReturn, Type, TypeVar, _GenericAlias,
+                    cast, get_type_hints)
 
 
 class Stuff(ABC):
@@ -85,11 +78,11 @@ class MetaEntity(ABCMeta):
       if idname:
         annotations = cls.identity.__annotations__
         cls.identity = FunctionType(
-        compile(
-          f'def identity(self) -> ID: return self.{idname}\n',
-          '<ddd.shared>',
-          'single').co_consts[ORD],
-        globals())
+          compile(
+            f'def identity(self) -> ID: return self.{idname}\n',
+            '<ddd.shared>',
+            'single').co_consts[ORD],
+          globals())
         cls.identity.__annotations__ = annotations
       else:
         cls.identity = MetaEntity.identity(cls)
