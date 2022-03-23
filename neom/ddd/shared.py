@@ -37,7 +37,7 @@ from abc import ABC, ABCMeta, abstractmethod
 from functools import lru_cache, wraps
 from types import CodeType, FunctionType
 from typing import (Callable, Generic, NoReturn, Type, TypeVar, _GenericAlias,
-                    cast, get_type_hints, _SpecialForm)
+                    _SpecialForm, cast, get_type_hints)
 
 
 class Stuff(ABC):
@@ -122,7 +122,8 @@ class Entity(Generic[T, ID], metaclass=MetaEntity):
     return NotImplemented
 
   def __repr__(self):
-    vals = ('{}={!r}'.format(m, getattr(self, m)) for m in self.__annotations__)
+    vals = ('{}={!r}'.format(m, getattr(self, m))
+            for m in self.__annotations__)
     return '{}<{}>'.format(self.__class__.__name__, ', '.join(vals))
 
   @classmethod
@@ -182,7 +183,8 @@ class ValueObject(metaclass=MetaValueObject):
                for name in self.__slots__)
 
   def __repr__(self):
-    vals = ('{}={!r}'.format(m, getattr(self, m)) for m in self.__annotations__)
+    vals = ('{}={!r}'.format(m, getattr(self, m))
+            for m in self.__annotations__)
     return '{}<{}>'.format(self.__class__.__name__, ', '.join(vals))
 
   @classmethod
