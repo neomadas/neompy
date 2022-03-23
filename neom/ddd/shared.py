@@ -163,8 +163,9 @@ class MetaValueObject(ABCMeta):
       cls.__slots__ = tuple(slots)
 
   def __repr__(cls):
-    vals = ('{}={!r}'.format(m, getattr(self, m)) for m in self.__annotations__)
-    return '{}<{}>'.format(self.__class__.__name__, ', '.join(vals))
+    items = cls.__annotations__.items()
+    props = ('{}={!r}'.format(name, prop) for name, prop in items)
+    return '{}<{}>'.format(cls.__name__, ', '.join(props))
 
 
 class ValueObject(metaclass=MetaValueObject):
@@ -181,9 +182,8 @@ class ValueObject(metaclass=MetaValueObject):
                for name in self.__slots__)
 
   def __repr__(self):
-    items = cls.__annotations__.items()
-    props = ('{}={!r}'.format(name, prop) for name, prop in items)
-    return '{}<{}>'.format(cls.__name__, ', '.join(props))
+    vals = ('{}={!r}'.format(m, getattr(self, m)) for m in self.__annotations__)
+    return '{}<{}>'.format(self.__class__.__name__, ', '.join(vals))
 
   @classmethod
   def Make(cls, **kwargs) -> ValueObject:
