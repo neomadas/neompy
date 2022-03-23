@@ -174,7 +174,8 @@ class ValueObject(metaclass=MetaValueObject):
     """Execute domain member validations."""
 
   def __eq__(self, other: ValueObject) -> bool:
-    return all(getattr(self, name) == getattr(other, name) for name in self.__slots__)
+    return all(getattr(self, name) == getattr(other, name)
+               for name in self.__slots__)
 
   @classmethod
   def Make(cls, **kwargs) -> ValueObject:
