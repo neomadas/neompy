@@ -3,7 +3,8 @@ from __future__ import annotations
 from unittest import TestCase
 
 
-from neom.ddd.shared import Entity, Identity, NoIdentityError
+from neom.ddd.shared import Entity, Identity, NoIdentityError, ValueObject
+from neom.ddd.staff import IntKey
 
 
 class EntityTestCase(TestCase):
@@ -49,3 +50,14 @@ class EntityTestCase(TestCase):
     self.assertIsInstance(foo, FooEntity)
     self.assertEqual(foo.bar, 1)
     self.assertEqual(foo.name, 'foo')
+
+
+class StaffTestCase(TestCase):
+
+  def test_intkey(self):
+    class Foo(ValueObject):
+      key: IntKey
+
+    foo = Foo(IntKey(12345))
+    print(foo.key)
+    print(IntKey.Next())

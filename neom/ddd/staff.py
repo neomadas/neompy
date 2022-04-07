@@ -27,21 +27,27 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+"""Staff classes.
+Common used in entities or value objects."""
+
 from __future__ import annotations
 
+import dataclasses
 import re
-from typing import Final, Optional
+from typing import Final, Generic, Optional, TypeVar, Type
 
-from .shared import ValueObject
+from .shared import ValueObject, _idcache
 
 
 class Phone(ValueObject):
+  """Compose phone."""
   country: Optional[int]
   area: Optional[int]
   number: Final[int]
 
 
 class Mobile(Phone):
+  """Mobile number as integer."""
   REGEX = r'^\(\+(\d{2})\) (\d{3}(?:-\d{3}){2})$'
 
   def __str__(self):
@@ -52,6 +58,7 @@ class Mobile(Phone):
 
   @staticmethod
   def Make(fmt: str) -> Mobile:
+    """Make from string format number."""
     match = re.match(Mobile.REGEX, fmt)
     if not match:
       raise ValueError(f'Invalid mobile phone {fmt}. User (+xx) xxx-xxx-xxx')
@@ -65,12 +72,45 @@ class Mobile(Phone):
 
 
 class Email(ValueObject):
+  """Email parsed."""
   address: str
 
   REGEX = r'^\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b$'
 
   def Validate(self):
+    """Validate address regex."""
     if not re.match(self.REGEX, self.address):
-      raise ValueError(f'Invalid email address format {address}')
+      raise ValueError(f'Invalid email address format {self.address}')
 
-  def __str__(self): return self.address
+  def __str__(self):
+    return self.address
+
+
+K = TypeVar('K')
+
+class Key(ValueObject, Generic[K]):
+  """Entity key."""
+
+  k: K
+
+
+  def __hash__(self) -> int:
+    return hash(self.k)
+
+  def __repr__(self):
+    return f'Key<{self.k}: {K}={K}>'
+
+  def _keyType(self) -> Type[K]:
+    """key type."""
+    return self.__orig_class__[0]
+
+  @classmethod
+  def Next(cls):
+    """Generate next valid key."""
+    print(cls(0))
+
+  @_idcache
+  def __class_getitem__(self, k: K):
+    return Key
+
+IntKey = Key[int]
