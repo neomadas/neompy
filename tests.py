@@ -1,10 +1,13 @@
 from __future__ import annotations
 
-from unittest import TestCase
+from unittest import TestCase, main
 
 
+from neom.lib.enum import IntEnum
 from neom.ddd.shared import Entity, Identity, NoIdentityError, ValueObject
 from neom.ddd.staff import IntKey
+
+from django.db.models import IntegerChoices
 
 
 class EntityTestCase(TestCase):
@@ -61,3 +64,22 @@ class StaffTestCase(TestCase):
     foo = Foo(IntKey(12345))
     print(foo.key)
     print(IntKey.Next())
+
+
+class IntEnumTestCase(TestCase):
+  class Colors(IntEnum):
+    RED = 0
+    GREEN = 1
+    BLUE = 2
+    YELLOW = 3
+
+  def test_integer_choices_classname(self):
+    integerChoices = self.Colors.ToIntegerChoices()
+    self.assertEqual(integerChoices.__name__, 'ColorsChoices')
+
+  def test_is_type_IntegerChoices(self):
+    self.assertTrue(issubclass(self.Colors.ToIntegerChoices(), IntegerChoices))
+
+
+if __name__ == '__main__':
+  main()
