@@ -3,7 +3,7 @@ from __future__ import annotations
 from unittest import TestCase, main
 
 
-from neom.core.utils import IntEnum
+from neom.lib.enum import IntEnum
 from neom.ddd.shared import Entity, Identity, NoIdentityError, ValueObject
 from neom.ddd.staff import IntKey
 
