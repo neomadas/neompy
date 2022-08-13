@@ -54,6 +54,25 @@ class EntityTestCase(TestCase):
     self.assertEqual(foo.bar, 1)
     self.assertEqual(foo.name, 'foo')
 
+  def test_eq_logic(self):
+    class FooEntity(Entity):
+      bar: int
+      name: str
+    self.assertNotEqual(FooEntity(bar=1, name='neom'), FooEntity(bar=2, name='neom'))
+    self.assertEqual(FooEntity(bar=1, name='neom'), FooEntity(bar=1, name='neom'))
+
+  def test_eq_with_hash_logic(self):
+    class FooEntity(Entity):
+      bar: int
+      name: str
+
+      def __hash__(self):
+        return hash(self.bar)
+
+    fooList = [FooEntity(bar=1, name='neom'), FooEntity(bar=1, name='neom')]
+    setFoo = set(fooList)
+    self.assertEqual(len(setFoo), 1)
+
 
 class StaffTestCase(TestCase):
 
