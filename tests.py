@@ -25,7 +25,7 @@ class EntityTestCase(TestCase):
     self.assertEqual(2, foo.isn)
     self.assertEqual('dummy', foo.dummy())
 
-  def test_validatoin(self):
+  def test_validation(self):
     class FooEntity(Entity):
       bar: Identity[int]
       def Validate(self):
@@ -62,8 +62,6 @@ class StaffTestCase(TestCase):
       key: IntKey
 
     foo = Foo(IntKey(12345))
-    print(foo.key)
-    print(IntKey.Next())
 
 
 class IntEnumTestCase(TestCase):
