@@ -134,6 +134,15 @@ class Entity(Generic[T, ID], metaclass=MetaEntity):
     return entity
 
 
+class EntitySupport:
+  def __eq__(self, other: Entity):
+    return all(getattr(self, name) == getattr(other, name)
+               for name in self.__slots__)
+
+  def __hash__(self):
+    return hash(self.identity())
+
+
 class MetaValueObject(ABCMeta):
   def __init__(cls, cname, bases, namespace):
     if '__annotations__' in namespace:
