@@ -4,10 +4,18 @@ from unittest import TestCase, main
 
 
 from neom.lib.enum import IntEnum
-from neom.ddd.shared import Entity, Identity, NoIdentityError, ValueObject
+from neom.ddd.shared import Entity, EntitySupport, Identity, NoIdentityError, ValueObject
 from neom.ddd.staff import IntKey
 
 from django.db.models import IntegerChoices
+
+
+class FooKey(ValueObject):
+  key: int
+  serie: str
+
+  def __hash__(self):
+    return hash(self.key)
 
 
 class EntityTestCase(TestCase):
@@ -54,24 +62,45 @@ class EntityTestCase(TestCase):
     self.assertEqual(foo.bar, 1)
     self.assertEqual(foo.name, 'foo')
 
-  def test_eq_logic(self):
-    class FooEntity(Entity):
-      bar: int
+  def test_eq_entity_support_with_primitive_identity(self):
+    class FooKey(ValueObject):
+      key: int
+      serie: str
+      def __hash__(self):
+        return hash(self.key)
+    class FooEntity(Entity, EntitySupport):
+      bar: Identity[int]
       name: str
     self.assertNotEqual(FooEntity(bar=1, name='neom'), FooEntity(bar=2, name='neom'))
     self.assertEqual(FooEntity(bar=1, name='neom'), FooEntity(bar=1, name='neom'))
 
-  def test_eq_with_hash_logic(self):
-    class FooEntity(Entity):
-      bar: int
+  def test_eq_entity_support_with_class_identity(self):
+    class FooEntity(Entity, EntitySupport):
+      fooKey: Identity[FooKey]
       name: str
+    self.assertNotEqual(FooEntity(fooKey=FooKey(key=1, serie='a'), name='neom'), FooEntity(fooKey=FooKey(key=2, serie='a'), name='neom'))
+    self.assertEqual(FooEntity(fooKey=FooKey(key=1, serie='a'), name='neom'), FooEntity(fooKey=FooKey(key=1, serie='a'), name='neom'))
 
-      def __hash__(self):
-        return hash(self.bar)
+  def test_eq_hash_entity_support_with_primitive_identity(self):
+    class FooEntity(Entity, EntitySupport):
+      bar: Identity[int]
+      name: str
 
     fooList = [FooEntity(bar=1, name='neom'), FooEntity(bar=1, name='neom')]
     setFoo = set(fooList)
     self.assertEqual(len(setFoo), 1)
+
+  def test_eq_hash_entity_support_with_class_identity(self):
+    class FooEntity(Entity, EntitySupport):
+      fooKey: Identity[FooKey]
+      name: str
+
+    fooList = [FooEntity(fooKey=FooKey(key=1, serie='a'), name='neom'), FooEntity(fooKey=FooKey(key=1, serie='a'), name='neom')]
+    setFoo = set(fooList)
+    self.assertEqual(len(setFoo), 1)
+    fooList = [FooEntity(fooKey=FooKey(key=1, serie='a'), name='neom'), FooEntity(fooKey=FooKey(key=1, serie='b'), name='neom')]
+    setFoo = set(fooList)
+    self.assertEqual(len(setFoo), 2)
 
 
 class StaffTestCase(TestCase):
