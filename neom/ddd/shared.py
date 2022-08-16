@@ -121,10 +121,6 @@ class Entity(Generic[T, ID], metaclass=MetaEntity):
   def SameIdentityAs(other: T) -> bool:
     return NotImplemented
 
-  def __eq__(self, other: Entity) -> bool:
-    return all(getattr(self, name) == getattr(other, name)
-               for name in self.__slots__)
-
   def __repr__(self):
     vals = ('{}={!r}'.format(m, getattr(self, m))
             for m in self.__annotations__)
@@ -136,6 +132,15 @@ class Entity(Generic[T, ID], metaclass=MetaEntity):
     for key, value in kwargs.items():
       setattr(entity, key, value)
     return entity
+
+
+class EntitySupport:
+  def __eq__(self, other: Entity):
+    return all(getattr(self, name) == getattr(other, name)
+               for name in self.__slots__)
+
+  def __hash__(self):
+    return hash(self.identity())
 
 
 class MetaValueObject(ABCMeta):
