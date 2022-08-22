@@ -43,7 +43,6 @@ from typing import (
     Type,
     TypeVar,
     _GenericAlias,
-    _SpecialForm,
     cast,
     get_type_hints,
 )
@@ -246,12 +245,6 @@ class IdentityAlias(Final, Immutable, _root=True):
 
     def __call__(self, *args, **kwds):
         raise TypeError(f"Cannot instantiate {self!r}")
-
-    def __instancecheck__(self, obj):
-        raise TypeError("Cannot instance check")
-
-    def __subclasscheck__(self, cls):
-        raise TypeError("Cannot subclass check")
 
 
 class Service(Stuff):

@@ -32,7 +32,6 @@ Common used in entities or value objects."""
 
 from __future__ import annotations
 
-import dataclasses
 import re
 from typing import Final, Generic, Optional, Type, TypeVar
 
