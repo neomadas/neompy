@@ -31,41 +31,48 @@
 It's used to mark the domain role for classes and models defined in the domain.
 """
 
+from __future__ import annotations
+
+from abc import ABCMeta
+from typing import get_type_hints, _GenericAlias, cast, _SpecialForm
+
+
 __all__ = ["ValueObject"]
 
 
-class MetaValueObject(ABCMeta):
+class _MetaValueObject(ABCMeta):
     def __init__(cls, cname, bases, namespace):
-        if "__annotations__" in namespace:
-            initlines = ["def __init__(self"]
-            initbody = []
-            slots = []
-            idname = None
-            for name, kind in get_type_hints(cls).items():
-                if isinstance(kind, _GenericAlias):
-                    kind = cast(_GenericAlias, kind).__origin__
-                if isinstance(kind, _SpecialForm):
-                    initlines.append(f", {name}: {kind}")
-                else:
-                    initlines.append(f", {name}: {kind.__name__}")
-                initbody.append(f"\n  self.{name} = {name}")
-                slots.append(name)
-                if isinstance(kind, IdentityAlias):
-                    raise TypeError("Use Identity in ValueObject es invalid")
-            initlines.append("):")
-            initlines.extend(initbody)
-            initlines.append("\n  self.Validate()")
-            initcode = compile("".join(initlines), "<ddd.shared>", "exec")
-            initfunc = FunctionType(
-                InitCodeType(initcode.co_consts[ORD]),
-                globals(),
-                "__init__",
-                None,
-                cls.__init__.__closure__,
-            )
-            super().__init__(cname, bases, namespace)
-            cls.__init__ = initfunc
-            cls.__slots__ = tuple(slots)
+        # if "__annotations__" in namespace:
+            # initlines = ["def __init__(self"]
+            # initbody = []
+            # slots = []
+            # idname = None
+            # for name, kind in get_type_hints(cls).items():
+                # if isinstance(kind, _GenericAlias):
+                    # kind = cast(_GenericAlias, kind).__origin__
+                # if isinstance(kind, _SpecialForm):
+                    # initlines.append(f", {name}: {kind}")
+                # else:
+                    # initlines.append(f", {name}: {kind.__name__}")
+                # initbody.append(f"\n  self.{name} = {name}")
+                # slots.append(name)
+                # if isinstance(kind, IdentityAlias):
+                    # raise TypeError("Use Identity in ValueObject es invalid")
+            # initlines.append("):")
+            # initlines.extend(initbody)
+            # initlines.append("\n  self.Validate()")
+            # initcode = compile("".join(initlines), "<ddd.shared>", "exec")
+            # initfunc = FunctionType(
+                # InitCodeType(initcode.co_consts[ORD]),
+                # globals(),
+                # "__init__",
+                # None,
+                # cls.__init__.__closure__,
+            # )
+            # super().__init__(cname, bases, namespace)
+            # cls.__init__ = initfunc
+            # cls.__slots__ = tuple(slots)
+        pass
 
     def __repr__(cls):
         items = cls.__annotations__.items()
@@ -73,7 +80,7 @@ class MetaValueObject(ABCMeta):
         return "{}<{}>".format(cls.__name__, ", ".join(props))
 
 
-class ValueObject(metaclass=MetaValueObject):
+class ValueObject(metaclass=_MetaValueObject):
     """TODO: Domain model value object."""
 
     def __init__(self):

@@ -47,6 +47,8 @@ from typing import (
     get_type_hints,
 )
 
+from .value_object import ValueObject
+
 
 class Stuff(ABC):
     def __init__(self, **kwargs):
