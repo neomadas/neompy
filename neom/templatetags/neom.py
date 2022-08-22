@@ -31,7 +31,6 @@ from django.template import Library, Node
 from django.template.base import FilterExpression, Parser, Token
 from django.template.loader_tags import construct_relative_path
 
-
 register = Library()
 
 

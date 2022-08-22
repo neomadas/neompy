@@ -34,7 +34,7 @@ from __future__ import annotations
 
 import dataclasses
 import re
-from typing import Final, Generic, Optional, TypeVar, Type
+from typing import Final, Generic, Optional, Type, TypeVar
 
 from .shared import ValueObject, _idcache
 

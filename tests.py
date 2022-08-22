@@ -2,12 +2,12 @@ from __future__ import annotations
 
 from unittest import TestCase, main
 
-
-from neom.lib.enum import IntEnum
-from neom.ddd.shared import Entity, EntitySupport, Identity, NoIdentityError, ValueObject
-from neom.ddd.staff import IntKey
-
 from django.db.models import IntegerChoices
+
+from neom.ddd.shared import (Entity, EntitySupport, Identity, NoIdentityError,
+                             ValueObject)
+from neom.ddd.staff import IntKey
+from neom.lib.enum import IntEnum
 
 
 class FooKey(ValueObject):
