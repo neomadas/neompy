@@ -31,42 +31,47 @@ import subprocess
 from pathlib import Path
 
 from django.conf import settings
-from django.core.management.base import (BaseCommand, CommandError,
-                                         CommandParser)
+from django.core.management.base import BaseCommand, CommandError, CommandParser
 
 try:
-  import coverage
+    import coverage
 except ImportError as error:
-  raise CommandError('coverage package not installed') from error
+    raise CommandError("coverage package not installed") from error
 
 
 class Command(BaseCommand):
-  help = 'Validate coverage (ci).'
+    help = "Validate coverage (ci)."
 
-  def add_arguments(self, parser: CommandParser):
-    parser.add_argument('test-module', help='Test module base')
-    parser.add_argument('rate', help='At least rate coverage', type=float)
+    def add_arguments(self, parser: CommandParser):
+        parser.add_argument("test-module", help="Test module base")
+        parser.add_argument("rate", help="At least rate coverage", type=float)
 
-  def handle(self, *args, **options):
-    basedir = Path(settings.BASE_DIR)
+    def handle(self, *args, **options):
+        basedir = Path(settings.BASE_DIR)
 
-    if not basedir.is_dir():
-      raise CommandError(f'Invalid project directory: {basedir}')
+        if not basedir.is_dir():
+            raise CommandError(f"Invalid project directory: {basedir}")
 
-    if not (basedir / 'manage.py').exists():
-      raise CommandError(f'No project directory: {basedir}')
+        if not (basedir / "manage.py").exists():
+            raise CommandError(f"No project directory: {basedir}")
 
-    testmodule = options['test-module']
-    try:
-      subprocess.run(
-        ' '.join(('coverage', 'run', '--source=.', 'manage.py', 'test',
-                  testmodule)),
-        shell=True, check=True)
-    except subprocess.CalledProcessError:
-      return
-    report = subprocess.run(['coverage', 'report', '--skip-covered', '--skip-empty'], capture_output=True)
-    totalline = report.stdout.decode().split('\n')[-4].split()
-    rate = float(totalline[-1][:-1])
-    expectedRate = options['rate']
-    if rate < expectedRate:
-      raise ValueError(f'Coverage rate failed: {rate} < {expectedRate}')
+        testmodule = options["test-module"]
+        try:
+            subprocess.run(
+                " ".join(
+                    ("coverage", "run", "--source=.", "manage.py", "test", testmodule)
+                ),
+                shell=True,
+                check=True,
+            )
+        except subprocess.CalledProcessError:
+            return
+        report = subprocess.run(
+            ["coverage", "report", "--skip-covered", "--skip-empty"],
+            capture_output=True,
+        )
+        totalline = report.stdout.decode().split("\n")[-4].split()
+        rate = float(totalline[-1][:-1])
+        expectedRate = options["rate"]
+        if rate < expectedRate:
+            raise ValueError(f"Coverage rate failed: {rate} < {expectedRate}")

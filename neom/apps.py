@@ -32,13 +32,15 @@ from django.conf import settings
 
 
 class NeomConfig(AppConfig):
-  default_auto_field = 'django.db.models.BigAutoField'
-  name = 'neom'
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "neom"
 
-  def ready(self):
-    if hasattr(settings, 'NEOM_IOC_WIRES'):
-      from neom.core.ioc import manager
-      settings.NEOM_IOC_WIRES(manager)
-    else:
-      import logging
-      logging.debug('Improve no used settings for IOCManager')
+    def ready(self):
+        if hasattr(settings, "NEOM_IOC_WIRES"):
+            from neom.core.ioc import manager
+
+            settings.NEOM_IOC_WIRES(manager)
+        else:
+            import logging
+
+            logging.debug("Improve no used settings for IOCManager")
