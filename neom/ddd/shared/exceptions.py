@@ -27,9 +27,21 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""This module is under construction.
-It's used to mark the domain roles.
-"""
+"""Classes representing legacy Google App Engine exceptions.
 
-from .stuff import *
-from .value_object import *
+Unless otherwise noted, these are meant to act as shims for the exception
+types defined in low level modules in"""
+
+
+__all__ = [
+  'Error',
+  'BadValueError',
+]
+
+
+class Error(Exception):
+  """Base datastore error type."""
+
+
+class BadMemberError(Error):
+  """Indicates a member value or filter value is invalid."""
