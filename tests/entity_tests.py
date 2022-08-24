@@ -35,13 +35,13 @@ from datetime import datetime
 from typing import ForwardRef
 from unittest import TestCase
 
-from neom.ddd.shared import Entity, Field, Identity
+from neom.ddd.shared import Entity, Field
 
 
 class EntityDeclarationTestCase(TestCase):
   """Entity declaration test case."""
 
-  def test_without_identity(self):
+  def test_definition(self):
     """Test most common entity definition."""
 
     class Person(Entity[ForwardRef('Person'), str]):
@@ -56,27 +56,10 @@ class EntityDeclarationTestCase(TestCase):
       def SameIdentityAs(self, other: Person) -> bool:
         return self.Identity() == other.Identity()
 
-    person = Person(name='Bruce Wayne', age=9, birth=datetime(2010, 1, 2))
-
-  def test_definition(self):
-    """Test most common entity definition."""
-
-    class Person(Entity[ForwardRef('Person'), str]):
-      """Dummy."""
-      name: Identity[str]
-      age: Field[int]
-      birth: Field[datetime]
-
-      def Identity(self) -> str:
-        return self.name
-
-      def SameIdentityAs(self, other: Person) -> bool:
-        return self.Identity() == other.Identity()
-
-    person = Person(name='Bruce Wayne', age=9, birth=datetime(2010, 1, 2))
+    person = Person(name='Bruce Banner', age=3, birth=datetime(2000, 10, 1))
 
     self.assertIsInstance(person, Person)
-    self.assertEqual(person.name, 'Bruce Wayne')
-    self.assertEqual(person.age, 9)
-    self.assertEqual(person.birth, datetime(2010, 1, 2))
-    self.assertEqual(person.Identity(), 'Bruce Wayne')
+    self.assertEqual(person.name, 'Bruce Banner')
+    self.assertEqual(person.age, 3)
+    self.assertEqual(person.birth, datetime(2000, 10, 1))
+    self.assertEqual(person.Identity(), 'Bruce Banner')
