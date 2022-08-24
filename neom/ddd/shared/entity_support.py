@@ -33,27 +33,47 @@ It's used to mark the domain role for classes and models defined in the domain.
 
 from __future__ import annotations
 
-from abc import abstractmethod
-from typing import Generic, TypeVar
+from typing import Type, TypeVar
 
-from .stuff import Field, Stuff
+from .entity import Entity
+from .identity import Identity
 
-__all__ = ('Entity',)
+__all__ = ('EntitySupport',)
 
 T = TypeVar('T')
-ID = TypeVar('ID', bound=Field)
+ID = TypeVar('ID', bound=Identity)
 
 
-class Entity(Stuff, Generic[T, ID]):
-  """A class describing domain entity."""
+class EntitySupport(Entity[T, ID]):
+  """EntitySupport."""
 
-  @abstractmethod
+  __slots__ = ()
+
+  _identityField = None
+
   def Identity(self) -> ID:
-    """Entities have an identity. Returns identity of this entity."""
+    if not self._identityField:
+      self._identityField = self._LazyIdentityDetermination()
+    return getattr(self, self._identityField.name)
 
-  @abstractmethod
   def SameIdentityAs(self, other: T) -> bool:
-    """Entities compare by identity, not by attributes.
-    param(other) the other entity.
-    Returns true when identities are the same, regardles of other attributes.
-    """
+    return other and self.Identity() == other.Identity()
+
+  def __eq__(self, other: T) -> bool:
+    return (
+      self is other) or (
+      other and isinstance(other, type(self)) and self.SameIdentityAs(other))
+
+  def __hash__(self) -> int:
+    return hash(self.Identity())
+
+  def _LazyIdentityDetermination(self) -> Type[ID]:
+    identityField = None
+    for field in self._fields.values():
+      if isinstance(field, Identity):
+        if identityField:
+          raise TypeError('Only one field can be an identity')
+        identityField = field
+    if not identityField:
+      raise TypeError('Must have a unique identity field')
+    return identityField

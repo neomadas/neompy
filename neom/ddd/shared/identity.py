@@ -33,27 +33,11 @@ It's used to mark the domain role for classes and models defined in the domain.
 
 from __future__ import annotations
 
-from abc import abstractmethod
-from typing import Generic, TypeVar
+from .stuff import Field
 
-from .stuff import Field, Stuff
-
-__all__ = ('Entity',)
-
-T = TypeVar('T')
-ID = TypeVar('ID', bound=Field)
+__all__ = ('Identity',)
 
 
-class Entity(Stuff, Generic[T, ID]):
-  """A class describing domain entity."""
-
-  @abstractmethod
-  def Identity(self) -> ID:
-    """Entities have an identity. Returns identity of this entity."""
-
-  @abstractmethod
-  def SameIdentityAs(self, other: T) -> bool:
-    """Entities compare by identity, not by attributes.
-    param(other) the other entity.
-    Returns true when identities are the same, regardles of other attributes.
-    """
+class Identity(Field):  # pylint:disable=too-few-public-methods
+  """Every class that inherits from EntitySupport must have exactly a identity.
+  """

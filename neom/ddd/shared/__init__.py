@@ -32,6 +32,8 @@ It's used to mark the domain roles.
 """
 
 from .entity import *
+from .entity_support import *
+from .identity import *
 from .stuff import *
 from .value_object import *
 from .value_object_support import *

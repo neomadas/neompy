@@ -55,7 +55,7 @@ class ValueObjectDeclarationTestCase(TestCase):
         return (self.name == other.name and self.age ==
                 other.age and self.birth == other.birth)
 
-      def Copy(self) -> Person:
+      def Copy(self) -> ForwardRef('Person'):
         return Person(name=self.name, age=self.age, birth=self.birth)
 
     person = Person(name='Bruce Wayne', age=9, birth=datetime(2010, 1, 2))
@@ -76,8 +76,8 @@ class ValueObjectDeclarationTestCase(TestCase):
       def SameValueAs(self, other: PersonalInfo) -> bool:
         return self.name == other.name and self.age == other.age
 
-      def Copy(self) -> PersonalInfo:
-        return Person(name=self.name, age=self.age, birth=self.birth)
+      def Copy(self) -> ForwardRef('PersonalInfo'):
+        return Person(name=self.name, age=self.age)
 
     class Person(PersonalInfo):
       """Dummy."""
@@ -90,7 +90,7 @@ class ValueObjectDeclarationTestCase(TestCase):
               PersonalInfo,
               other)) and self.birth == other.birth)
 
-      def Copy(self) -> Person:
+      def Copy(self) -> ForwardRef('Person'):
         return Person(name=self.name, age=self.age, birth=self.birth)
 
     person = Person(name='Bruce Wayne', age=9, birth=datetime(2010, 1, 2))
@@ -115,19 +115,19 @@ class ValueObjectMethodsTestCase(TestCase):
         return (self.name == other.name and self.age ==
                 other.age and self.birth == other.birth)
 
-      def Copy(self) -> Person:
+      def Copy(self) -> ForwardRef('Person'):
         return deepcopy(self)
-    self.Person = Person
+    self.person = Person
 
   def test_same_value_as(self):
     """Test SameValueAs method."""
-    p1 = self.Person(name='Bruce Wayne', age=9, birth=datetime(2010, 1, 2))
-    p2 = self.Person(name='Bruce Wayne', age=9, birth=datetime(2010, 1, 2))
+    p1 = self.person(name='Bruce Wayne', age=9, birth=datetime(2010, 1, 2))
+    p2 = self.person(name='Bruce Wayne', age=9, birth=datetime(2010, 1, 2))
     self.assertTrue(p1.SameValueAs(p2))
 
   def test_copy(self):
     """Test Copy method."""
-    p1 = self.Person(name='Bruce Wayne', age=9, birth=datetime(2010, 1, 2))
+    p1 = self.person(name='Bruce Wayne', age=9, birth=datetime(2010, 1, 2))
     p2 = p1.Copy()
 
     # TODO: improve this test to verify deep copy
@@ -158,7 +158,7 @@ class ValueObjectBackCompatibilityTestCase(TestCase):
         return (self.name == other.name and self.age ==
                 other.age and self.birth == other.birth)
 
-      def Copy(self) -> Person:
+      def Copy(self) -> ForwardRef('Person'):
         return Person(name=self.name, age=self.age, birth=self.birth)
 
     person = Person(name='Bruce Wayne', age=9, birth=datetime(2010, 1, 2))

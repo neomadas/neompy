@@ -31,11 +31,11 @@
 
 from __future__ import annotations
 
-from unittest import TestCase
 from datetime import datetime
 from typing import ForwardRef
+from unittest import TestCase
 
-from neom.ddd.shared import Field, Entity, Identity
+from neom.ddd.shared import Entity, Field, Identity
 
 
 class EntityDeclarationTestCase(TestCase):
