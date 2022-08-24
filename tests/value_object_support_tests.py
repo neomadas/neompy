@@ -27,53 +27,37 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""This module is under construction.
-It's used to mark the domain role for classes and models defined in the domain.
-"""
+"""ValueObjectSupport tests."""
 
 from __future__ import annotations
 
-from abc import abstractmethod
-from typing import Callable, Generic, TypeVar
+from datetime import datetime
+from typing import ForwardRef, cast
+from unittest import TestCase
 
-from .stuff import Field, Stuff
-
-__all__ = ('Entity', 'Identity')
-
-
-class Identity(Field):  # pylint:disable=too-few-public-methods
-  """Every class that inherits from Entity must have exactly a identity."""
+from neom.ddd.shared import Field, ValueObjectSupport
 
 
-T = TypeVar('T')
-ID = TypeVar('ID', bound=Identity)
+class ValueObjectSupportTestCase(TestCase):
+  """ValueObjectSupport test case."""
 
+  def test_eq(self):
+    """Test eq method."""
 
-class Entity(Stuff, Generic[T, ID]):
-  """A class describing domain entity."""
+    class XValueObject(ValueObjectSupport[ForwardRef('XValueObject')]):
+      name: Field[str]
 
-  @abstractmethod
-  def Identity(self) -> ID:
-    """Entities have an identity. Returns identity of this entity."""
+    class YValueObject(XValueObject):
+      age: Field[int]
 
-  @abstractmethod
-  def SameIdentityAs(self, other: T) -> bool:
-    """Entities compare by identity, not by attributes.
-    param(other) the other entity.
-    Returns true when identities are the same, regardles of other attributes.
-    """
+    vo1 = XValueObject(name='X')
+    vo2 = XValueObject(name='X')
+    vo3 = YValueObject(name='X', age=3)
 
+    self.assertEqual(vo1, vo2)
+    self.assertEqual(vo2, vo1)
+    self.assertNotEqual(vo2, vo3)
+    self.assertNotEqual(vo3, vo2)
 
-class EntitySupport:
-  """EntitySupport."""
-
-  __slots__ = ()
-
-  Identity: Callable[[], object]
-
-  def __eq__(self, other: Entity):
-    return all(getattr(self, name) == getattr(other, name)
-               for name in self.__slots__)
-
-  def __hash__(self):
-    return hash(self.Identity())
+    self.assertTrue(vo1.SameValueAs(vo2))
+    self.assertFalse(vo2.SameValueAs(vo3))

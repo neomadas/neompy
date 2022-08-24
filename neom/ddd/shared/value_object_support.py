@@ -28,52 +28,32 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 """This module is under construction.
-It's used to mark the domain role for classes and models defined in the domain.
-"""
+It's used to mark the domain value object role for classes defined in domain."""
 
 from __future__ import annotations
 
-from abc import abstractmethod
-from typing import Callable, Generic, TypeVar
+from copy import deepcopy
+from typing import TypeVar, cast, final
 
-from .stuff import Field, Stuff
+from .value_object import Stuff, ValueObject
 
-__all__ = ('Entity', 'Identity')
-
-
-class Identity(Field):  # pylint:disable=too-few-public-methods
-  """Every class that inherits from Entity must have exactly a identity."""
-
+__all__ = ['ValueObjectSupport']
 
 T = TypeVar('T')
-ID = TypeVar('ID', bound=Identity)
 
 
-class Entity(Stuff, Generic[T, ID]):
-  """A class describing domain entity."""
+class ValueObjectSupport(ValueObject[T]):
+  """Base class for value objects."""
 
-  @abstractmethod
-  def Identity(self) -> ID:
-    """Entities have an identity. Returns identity of this entity."""
+  def __eq__(self, other: T) -> bool:
+    return self.SameValueAs(other)
 
-  @abstractmethod
-  def SameIdentityAs(self, other: T) -> bool:
-    """Entities compare by identity, not by attributes.
-    param(other) the other entity.
-    Returns true when identities are the same, regardles of other attributes.
-    """
+  @final
+  def SameValueAs(self, other: T) -> bool:
+    return (other
+            and isinstance(other, type(self))
+            and self.ReflectionEquals(cast(Stuff, other)))
 
-
-class EntitySupport:
-  """EntitySupport."""
-
-  __slots__ = ()
-
-  Identity: Callable[[], object]
-
-  def __eq__(self, other: Entity):
-    return all(getattr(self, name) == getattr(other, name)
-               for name in self.__slots__)
-
-  def __hash__(self):
-    return hash(self.Identity())
+  @final
+  def Copy(self) -> T:
+    return deepcopy(self)

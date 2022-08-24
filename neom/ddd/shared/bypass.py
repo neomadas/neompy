@@ -27,53 +27,50 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""This module is under construction.
-It's used to mark the domain role for classes and models defined in the domain.
-"""
-
-from __future__ import annotations
-
-from abc import abstractmethod
-from typing import Callable, Generic, TypeVar
-
-from .stuff import Field, Stuff
-
-__all__ = ('Entity', 'Identity')
+"""Temporary module to put domain related classes."""
 
 
-class Identity(Field):  # pylint:disable=too-few-public-methods
-  """Every class that inherits from Entity must have exactly a identity."""
+class Service:  # pylint:disable=too-few-public-methods
+  """TODO: Domain service declaration."""
 
 
-T = TypeVar('T')
-ID = TypeVar('ID', bound=Identity)
+class Repository:  # pylint:disable=too-few-public-methods
+  """TODO: Domain model entity repository."""
 
 
-class Entity(Stuff, Generic[T, ID]):
-  """A class describing domain entity."""
-
-  @abstractmethod
-  def Identity(self) -> ID:
-    """Entities have an identity. Returns identity of this entity."""
-
-  @abstractmethod
-  def SameIdentityAs(self, other: T) -> bool:
-    """Entities compare by identity, not by attributes.
-    param(other) the other entity.
-    Returns true when identities are the same, regardles of other attributes.
-    """
+class QuerySet:  # pylint:disable=too-few-public-methods
+  """TODO: Domain model query set application."""
 
 
-class EntitySupport:
-  """EntitySupport."""
+class Error(Exception):
+  """DDD Errors"""
 
-  __slots__ = ()
 
-  Identity: Callable[[], object]
+class DomainError(Error):
+  """Entities, repositories and services base error for user cases.
+  This exceptions does not break the workflow."""
 
-  def __eq__(self, other: Entity):
-    return all(getattr(self, name) == getattr(other, name)
-               for name in self.__slots__)
 
-  def __hash__(self):
-    return hash(self.Identity())
+class NoIdentityError(DomainError):
+  """Notify the use"""
+
+  def __init__(self, cls):
+    super().__init__(cls)
+    self._cls = cls
+
+  def __str__(self):
+    return f'{self._cls.__qualname__} without identity'
+
+
+class RepositoryError(DomainError):
+  """Find, Store, Delete, Remove errors"""
+
+
+class ServiceError(DomainError):
+  """Service logic error."""
+
+
+class NotFoundError(RepositoryError):
+  """Raised when Repository.Find doest not foun.
+  Connection and transaction errors not included.
+  """

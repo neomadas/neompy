@@ -15,8 +15,8 @@
 #    contributors may be used to endorse or promote products derived from
 #    this software without specific prior written permission.
 #
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS 'AS
-# IS' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
+# IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 # TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 # PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
 # HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
@@ -80,18 +80,23 @@ class Stuff(ABC, metaclass=_MetaStuff):
 
   __slots__ = ()
 
-  def __eq__(self, other: Stuff) -> bool:
-    """Compare two stuff by members."""
-    return all(
-      getattr(self, name) == getattr(other, name)
-      for name in self.__slots__
-    )
+  _fields = {}
+  _kinds = {}
 
   def __repr__(self):
     fields = [f'{f.name}={f!r}' for _, f in sorted(self._fields.items())]
     return f'{self._kindname()}<{", ".join(fields)}>'
 
-  @ classmethod
+  def ReflectionEquals(self, other: Stuff) -> bool:
+    """Compare two stuff by fields."""
+    if len(self._fields) != len(other._fields):
+      return False
+    return not any(name not in other._fields
+                   or field != other._fields[name]
+                   or getattr(self, name) != getattr(other, name)
+                   for name, field in self._fields.items())
+
+  @classmethod
   def _kindname(cls):
     """Return the kind name for this class.
 
@@ -100,9 +105,9 @@ class Stuff(ABC, metaclass=_MetaStuff):
     """
     return cls.__name__
 
-  @ classmethod
+  @classmethod
   def _StateMembers(cls):
-    """State member calling their ``_state()`` method.
+    """State member calling their ``_FixState()`` method.
 
     .. note::
 
@@ -125,7 +130,10 @@ class Stuff(ABC, metaclass=_MetaStuff):
       cls._kinds = {}
 
       for name, field in typeHints.items():
-        field._FixState(cls, name)  # pylint: disable=protected-access
+        # TODO: back compatibility - remove after migration
+        if not isinstance(field, Field):
+          field = Field[field]
+        field._FixState(cls, name)  # pylint:disable=protected-access
         cls._fields[name] = field
       cls._UpdateKinds()
 
@@ -136,7 +144,7 @@ class Stuff(ABC, metaclass=_MetaStuff):
           'self', modules[cls.__module__].__dict__
           if cls.__module__ in modules else{},))
 
-  @ classmethod
+  @classmethod
   def _UpdateKinds(cls: Type[Stuff]):
     """Update kinds dict to include this class."""
     cls._kinds[cls._kindname()] = cls
@@ -194,7 +202,7 @@ def _NewFn(
   localvars = ', '.join(localns.keys())
   txt = f"def __new_fn__({localvars}):\n{txt}\n return {name}"
   ns = {}
-  exec(txt, globalns, ns)  # pylint: disable=exec-used
+  exec(txt, globalns, ns)  # pylint:disable=exec-used
   return ns['__new_fn__'](**localns)
 
 
@@ -216,6 +224,10 @@ class Field(Generic[T]):
   def __call__(self, *args, **kwds):
     raise TypeError(f"Cannot instantiate {self!r}")
 
+  def __eq__(self, other: Field) -> bool:
+    return (other and isinstance(other, Field)
+            and self.kind is other.kind and self.name == other.name)
+
   def _FixState(self, pkind: Type[T], name: str):
     """Helper called to tell member its name."""
     self.pkind = pkind
@@ -223,7 +235,7 @@ class Field(Generic[T]):
 
   def __class_getitem__(
       cls, item: T | Tuple[Type[T], Callable[[T], None] | Arg]):
-    return Field(*item) if isinstance(item, Arg) else Field(item)
+    return cls(*item) if isinstance(item, Arg) else cls(item)
 
 
 class Arg(NamedTuple):

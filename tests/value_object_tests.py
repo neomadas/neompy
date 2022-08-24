@@ -15,8 +15,8 @@
 #    contributors may be used to endorse or promote products derived from
 #    this software without specific prior written permission.
 #
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS 'AS
-# IS' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
+# IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 # TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 # PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
 # HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
@@ -140,3 +140,30 @@ class ValueObjectMethodsTestCase(TestCase):
 
     self.assertIsNot(p1.birth, p2.birth)
     self.assertEqual(p1.birth, p2.birth)
+
+
+class ValueObjectBackCompatibilityTestCase(TestCase):
+  """ValueObject back compatibility test case."""
+
+  def test_auto_fields(self):
+    """Test SameValueAs method."""
+
+    class Person(ValueObject[ForwardRef('Person')]):
+      """Dummy."""
+      name: str
+      age: int
+      birth: datetime
+
+      def SameValueAs(self, other: Person) -> bool:
+        return (self.name == other.name and self.age ==
+                other.age and self.birth == other.birth)
+
+      def Copy(self) -> Person:
+        return Person(name=self.name, age=self.age, birth=self.birth)
+
+    person = Person(name='Bruce Wayne', age=9, birth=datetime(2010, 1, 2))
+
+    self.assertIsInstance(person, Person)
+    self.assertEqual(person.name, 'Bruce Wayne')
+    self.assertEqual(person.age, 9)
+    self.assertEqual(person.birth, datetime(2010, 1, 2))
