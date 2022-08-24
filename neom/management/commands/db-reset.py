@@ -36,9 +36,7 @@ from django.core.management.base import BaseCommand, CommandError
 
 
 class Command(BaseCommand):
-  help = (
-    'Delete current db and recreate migrations to execute population data.'
-  )
+  help = 'Delete current db and recreate migrations to execute population data.'
 
   def handle(self, *unused_args, **unsed_options):
     basedir = Path(settings.BASE_DIR)

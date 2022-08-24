@@ -39,11 +39,11 @@ class Command(BaseCommand):
     Define populator classes like
 
     class SomePopulator(Populator):
-    def populate(self):
-      ...
-      self.previous_populator.items[...]
+      def populate(self):
+        ...
+        self.previous_populator.items[...]
 
-      self.next_populator.send(...)
+        self.next_populator.send(...)
 
     Pass constructed items to reuse the instances.
   """
