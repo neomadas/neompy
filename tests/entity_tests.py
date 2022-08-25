@@ -35,7 +35,7 @@ from datetime import datetime
 from typing import ForwardRef
 from unittest import TestCase
 
-from neom.ddd.shared import Entity, Field
+from neom.new_ddd.shared import Entity, Field
 
 
 class EntityDeclarationTestCase(TestCase):

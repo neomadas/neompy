@@ -34,7 +34,7 @@ from __future__ import annotations
 from typing import ForwardRef
 from unittest import TestCase
 
-from neom.ddd.shared import Field, ValueObjectSupport
+from neom.new_ddd.shared import Field, ValueObjectSupport
 
 
 class ValueObjectSupportTestCase(TestCase):

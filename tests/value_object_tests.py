@@ -36,7 +36,7 @@ from datetime import datetime
 from typing import ForwardRef, cast
 from unittest import TestCase
 
-from neom.ddd.shared import Field, ValueObject
+from neom.new_ddd.shared import Field, ValueObject
 
 
 class ValueObjectDeclarationTestCase(TestCase):
