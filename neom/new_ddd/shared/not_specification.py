@@ -27,14 +27,28 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""This module is under construction.
-It's used to mark the domain roles.
-"""
+"""NOT Specification module."""
 
-from .abstract_specification import *
-from .entity import *
-from .entity_support import *
-from .identity import *
-from .stuff import *
-from .value_object import *
-from .value_object_support import *
+
+from __future__ import annotations
+
+from typing import Final, TypeVar
+
+from .abstract_specification import AbstractSpecification
+from .specification import Specification
+
+__all__ = ('NotSpecification',)
+
+T = TypeVar('T')
+
+
+class NotSpecification(AbstractSpecification[T]):
+  """NOT specification creates a new specifcation that is the inverse (NOT)
+  of another specification."""
+
+  def __init__(self, spec: Final[Specification[T]]):
+    """New NOT specification based on another spec."""
+    self.spec = spec
+
+  def IsSatisfiedBy(self, t: T) -> bool:
+    return not self.spec.IsSatisfiedBy(t)

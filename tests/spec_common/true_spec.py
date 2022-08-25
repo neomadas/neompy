@@ -27,14 +27,14 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""This module is under construction.
-It's used to mark the domain roles.
-"""
+"""True specifications."""
 
-from .abstract_specification import *
-from .entity import *
-from .entity_support import *
-from .identity import *
-from .stuff import *
-from .value_object import *
-from .value_object_support import *
+from __future__ import annotations
+
+from neom.new_ddd.shared import AbstractSpecification
+
+__all__ = ('TrueSpec',)
+
+class TrueSpec(AbstractSpecification[object]):
+  def IsSatisfiedBy(self, t: object) -> bool:
+    return True

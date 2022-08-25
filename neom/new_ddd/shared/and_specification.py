@@ -27,14 +27,31 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""This module is under construction.
-It's used to mark the domain roles.
-"""
+"""AND Specification module."""
 
-from .abstract_specification import *
-from .entity import *
-from .entity_support import *
-from .identity import *
-from .stuff import *
-from .value_object import *
-from .value_object_support import *
+
+from __future__ import annotations
+
+from typing import Final, TypeVar
+
+from .abstract_specification import AbstractSpecification
+from .specification import Specification
+
+__all__ = ('AndSpecification',)
+
+T = TypeVar('T')
+
+
+class AndSpecification(AbstractSpecification[T]):
+  """AND specification creates a new specifcation that is the AND
+  of two another specifications."""
+
+  def __init__(self,
+               spec1: Final[Specification[T]],
+               spec2: Final[Specification[T]]):
+    """New AND specification based on two another spec."""
+    self.spec1 = spec1
+    self.spec2 = spec2
+
+  def IsSatisfiedBy(self, t: T) -> bool:
+    return self.spec1.IsSatisfiedBy(t) and self.spec2.IsSatisfiedBy(t)
