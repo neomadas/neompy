@@ -32,15 +32,15 @@ Common used in entities or value objects."""
 
 from __future__ import annotations
 
-import dataclasses
 import re
-from typing import Final, Generic, Optional, TypeVar, Type
+from typing import Final, Generic, Optional, Type, TypeVar
 
 from .shared import ValueObject, _idcache
 
 
 class Phone(ValueObject):
   """Compose phone."""
+
   country: Optional[int]
   area: Optional[int]
   number: Final[int]
@@ -48,12 +48,13 @@ class Phone(ValueObject):
 
 class Mobile(Phone):
   """Mobile number as integer."""
+
   REGEX = r'^\(\+(\d{2})\) (\d{3}(?:-\d{3}){2})$'
 
   def __str__(self):
-    part1 = int(self.number / 10 ** 6)
-    part2 = int((self.number % 10 ** 6) / 10 ** 3)
-    part3 = int(self.number % 10 ** 3)
+    part1 = int(self.number / 10**6)
+    part2 = int((self.number % 10**6) / 10**3)
+    part3 = int(self.number % 10**3)
     return f'(+{self.country}) {part1}-{part2}-{part3}'
 
   @staticmethod
@@ -61,7 +62,9 @@ class Mobile(Phone):
     """Make from string format number."""
     match = re.match(Mobile.REGEX, fmt)
     if not match:
-      raise ValueError(f'Invalid mobile phone {fmt}. User (+xx) xxx-xxx-xxx')
+      raise ValueError(
+        f'Invalid mobile phone {fmt}. User (+xx) xxx-xxx-xxx'
+      )
 
     groups = match.groups()
     country = int(groups[0])
@@ -73,6 +76,7 @@ class Mobile(Phone):
 
 class Email(ValueObject):
   """Email parsed."""
+
   address: str
 
   REGEX = r'^\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b$'
@@ -88,11 +92,11 @@ class Email(ValueObject):
 
 K = TypeVar('K')
 
+
 class Key(ValueObject, Generic[K]):
   """Entity key."""
 
   k: K
-
 
   def __hash__(self) -> int:
     return hash(self.k)
@@ -112,5 +116,6 @@ class Key(ValueObject, Generic[K]):
   @_idcache
   def __class_getitem__(self, k: K):
     return Key
+
 
 IntKey = Key[int]
