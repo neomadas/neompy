@@ -27,14 +27,31 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""This module is under construction.
-It's used to mark the domain roles.
-"""
+"""Abstract specification module."""
 
-from .abstract_specification import *
-from .entity import *
-from .entity_support import *
-from .identity import *
-from .stuff import *
-from .value_object import *
-from .value_object_support import *
+from __future__ import annotations
+
+from typing import Final, TypeVar
+
+from .specification import Specification
+
+__all__ = ('AbstractSpecification',)
+
+T = TypeVar('T')
+
+
+class AbstractSpecification(Specification[T]):
+  """Base of composite ``Specification`` with ``and``, ``or`` and ``not``
+  default implementations."""
+
+  def And(self, specification: Final[Specification[T]]) -> Specification[T]:
+    from .and_specification import AndSpecification  # pylint:disable=C0415
+    return AndSpecification(self, specification)
+
+  def Or(self, specification: Final[Specification[T]]) -> Specification[T]:
+    from .or_specification import OrSpecification  # pylint:disable=C0415
+    return OrSpecification(self, specification)
+
+  def Not(self, specification: Final[Specification[T]]) -> Specification[T]:
+    from .not_specification import NotSpecification  # pylint:disable=C0415
+    return NotSpecification(specification)

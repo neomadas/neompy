@@ -27,14 +27,32 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""This module is under construction.
-It's used to mark the domain roles.
-"""
+"""And specification tests."""
 
-from .abstract_specification import *
-from .entity import *
-from .entity_support import *
-from .identity import *
-from .stuff import *
-from .value_object import *
-from .value_object_support import *
+from __future__ import annotations
+
+from unittest import TestCase
+
+from neom.new_ddd.shared.and_specification import AndSpecification
+
+from .spec_common.false_spec import FalseSpec
+from .spec_common.true_spec import TrueSpec
+
+
+class AndSpecificationTestCase(TestCase):
+
+  def test_and_is_satisfied_by(self):
+    trueSpec = TrueSpec()
+    falseSpec = FalseSpec()
+
+    andSpecification = AndSpecification[object](trueSpec, trueSpec)
+    self.assertTrue(andSpecification.IsSatisfiedBy(object()))
+
+    andSpecification = AndSpecification[object](falseSpec, trueSpec)
+    self.assertFalse(andSpecification.IsSatisfiedBy(object()))
+
+    andSpecification = AndSpecification[object](trueSpec, falseSpec)
+    self.assertFalse(andSpecification.IsSatisfiedBy(object()))
+
+    andSpecification = AndSpecification[object](falseSpec, falseSpec)
+    self.assertFalse(andSpecification.IsSatisfiedBy(object()))

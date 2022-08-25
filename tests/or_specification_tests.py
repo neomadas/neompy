@@ -27,14 +27,32 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""This module is under construction.
-It's used to mark the domain roles.
-"""
+"""Or specification tests."""
 
-from .abstract_specification import *
-from .entity import *
-from .entity_support import *
-from .identity import *
-from .stuff import *
-from .value_object import *
-from .value_object_support import *
+from __future__ import annotations
+
+from unittest import TestCase
+
+from neom.new_ddd.shared.or_specification import OrSpecification
+
+from .spec_common.false_spec import FalseSpec
+from .spec_common.true_spec import TrueSpec
+
+
+class OrSpecificationTestCase(TestCase):
+
+  def test_or_is_satisfied_by(self):
+    trueSpec = TrueSpec()
+    falseSpec = FalseSpec()
+
+    orSpecification = OrSpecification[object](trueSpec, trueSpec)
+    self.assertTrue(orSpecification.IsSatisfiedBy(object()))
+
+    orSpecification = OrSpecification[object](falseSpec, trueSpec)
+    self.assertTrue(orSpecification.IsSatisfiedBy(object()))
+
+    orSpecification = OrSpecification[object](trueSpec, falseSpec)
+    self.assertTrue(orSpecification.IsSatisfiedBy(object()))
+
+    orSpecification = OrSpecification[object](falseSpec, falseSpec)
+    self.assertFalse(orSpecification.IsSatisfiedBy(object()))
