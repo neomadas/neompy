@@ -27,40 +27,53 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from django.template import Library, Node
-from django.template.base import FilterExpression, Parser, Token
-from django.template.loader_tags import construct_relative_path
+"""This module is under construction.
+It's used to mark the domain role for classes and models defined in the domain.
+"""
 
-register = Library()
+from __future__ import annotations
 
+from typing import Type, TypeVar
 
-class NeomImportNode(Node):
-  def __init__(self, template: FilterExpression, *args, **kwargs):
-    self.template = template
-    super().__init__(*args, **kwargs)
+from .entity import Entity
+from .identity import Identity
 
-  def render(self, context):
-    subpath = self.template.resolve(context)
-    fullpath = (
-      construct_relative_path(self.origin.template_name, subpath),
-    )
+__all__ = ('EntitySupport',)
 
-    cache = context.render_context.dicts[0].setdefault(self, {})
-    template = cache.get(fullpath)
-
-    if not template:
-      template = context.template.engine.select_template(fullpath)
-      cache[fullpath] = template
-
-    return template.render(context)
+T = TypeVar('T')
+ID = TypeVar('ID', bound=Identity)
 
 
-@register.tag
-def neom_import(parser: Parser, token: Token):
-  bits = token.split_contents()
-  if len(bits) < 2:
-    raise template.TemplateSyntaxError(
-      f'{bits[0]} tag takes at least one argument: the asset path'
-    )
-  bits[1] = construct_relative_path(parser.origin.template_name, bits[1])
-  return NeomImportNode(parser.compile_filter(bits[1]))
+class EntitySupport(Entity[T, ID]):
+  """EntitySupport."""
+
+  __slots__ = ()
+
+  _identityField = None
+
+  def Identity(self) -> ID:
+    if not self._identityField:
+      self._identityField = self._LazyIdentityDetermination()
+    return getattr(self, self._identityField.name)
+
+  def SameIdentityAs(self, other: T) -> bool:
+    return other and self.Identity() == other.Identity()
+
+  def __eq__(self, other: T) -> bool:
+    return (
+      self is other) or (
+      other and isinstance(other, type(self)) and self.SameIdentityAs(other))
+
+  def __hash__(self) -> int:
+    return hash(self.Identity())
+
+  def _LazyIdentityDetermination(self) -> Type[ID]:
+    identityField = None
+    for field in self._fields.values():
+      if isinstance(field, Identity):
+        if identityField:
+          raise TypeError('Only one field can be an identity')
+        identityField = field
+    if not identityField:
+      raise TypeError('Must have a unique identity field')
+    return identityField

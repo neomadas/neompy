@@ -27,40 +27,53 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from django.template import Library, Node
-from django.template.base import FilterExpression, Parser, Token
-from django.template.loader_tags import construct_relative_path
+"""EntitySupport tests."""
 
-register = Library()
+from __future__ import annotations
 
+from typing import ForwardRef
+from unittest import TestCase
 
-class NeomImportNode(Node):
-  def __init__(self, template: FilterExpression, *args, **kwargs):
-    self.template = template
-    super().__init__(*args, **kwargs)
-
-  def render(self, context):
-    subpath = self.template.resolve(context)
-    fullpath = (
-      construct_relative_path(self.origin.template_name, subpath),
-    )
-
-    cache = context.render_context.dicts[0].setdefault(self, {})
-    template = cache.get(fullpath)
-
-    if not template:
-      template = context.template.engine.select_template(fullpath)
-      cache[fullpath] = template
-
-    return template.render(context)
+from neom.new_ddd.shared import EntitySupport, Identity
 
 
-@register.tag
-def neom_import(parser: Parser, token: Token):
-  bits = token.split_contents()
-  if len(bits) < 2:
-    raise template.TemplateSyntaxError(
-      f'{bits[0]} tag takes at least one argument: the asset path'
-    )
-  bits[1] = construct_relative_path(parser.origin.template_name, bits[1])
-  return NeomImportNode(parser.compile_filter(bits[1]))
+class EntitySupportTestCase(TestCase):
+  """EntitySupport test case."""
+
+  def test_no_identity(self):
+    entity = self.NoIdentityEntity()
+    with self.assertRaisesRegex(TypeError, 'Must have a unique identity field'):
+      entity.Identity()
+
+  def test_two_identity(self):
+    entity = self.TwoIdentityEntity(name1='Bruce Banner', name2='Bruce Banner')
+    with self.assertRaisesRegex(TypeError, 'Only one field can be an identity'):
+      entity.Identity()
+
+  def test_ok_identity(self):
+    entity = self.IdentityEntity(name='Bruce Banner')
+    self.assertEqual('Bruce Banner', entity.Identity())
+
+  def test_same_identity(self):
+    e1 = self.IdentityEntity(name='Bruce Banner')
+    e2 = self.IdentityEntity(name='Bruce Banner')
+    e3 = self.IdentityEntity(name='Bruce Wayne')
+
+    self.assertTrue(e1.SameIdentityAs(e2))
+    self.assertFalse(e2.SameIdentityAs(e3))
+
+    self.assertEqual(e1, e2)
+    self.assertNotEqual(e2, e3)
+
+    self.assertEqual(hash(e1), hash(e2))
+    self.assertNotEqual(hash(e2), hash(e3))
+
+  class NoIdentityEntity(EntitySupport[ForwardRef('NoIdentityEntity'), str]):
+    pass
+
+  class IdentityEntity(EntitySupport[ForwardRef('IdentityEntity'), str]):
+    name: Identity[str]
+
+  class TwoIdentityEntity(EntitySupport[ForwardRef('TwoIdentityEntity'), str]):
+    name1: Identity[str]
+    name2: Identity[str]

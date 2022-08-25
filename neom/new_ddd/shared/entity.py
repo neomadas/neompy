@@ -27,40 +27,33 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from django.template import Library, Node
-from django.template.base import FilterExpression, Parser, Token
-from django.template.loader_tags import construct_relative_path
+"""This module is under construction.
+It's used to mark the domain role for classes and models defined in the domain.
+"""
 
-register = Library()
+from __future__ import annotations
 
+from abc import abstractmethod
+from typing import Generic, TypeVar
 
-class NeomImportNode(Node):
-  def __init__(self, template: FilterExpression, *args, **kwargs):
-    self.template = template
-    super().__init__(*args, **kwargs)
+from .stuff import Field, Stuff
 
-  def render(self, context):
-    subpath = self.template.resolve(context)
-    fullpath = (
-      construct_relative_path(self.origin.template_name, subpath),
-    )
+__all__ = ('Entity',)
 
-    cache = context.render_context.dicts[0].setdefault(self, {})
-    template = cache.get(fullpath)
-
-    if not template:
-      template = context.template.engine.select_template(fullpath)
-      cache[fullpath] = template
-
-    return template.render(context)
+T = TypeVar('T')
+ID = TypeVar('ID', bound=Field)
 
 
-@register.tag
-def neom_import(parser: Parser, token: Token):
-  bits = token.split_contents()
-  if len(bits) < 2:
-    raise template.TemplateSyntaxError(
-      f'{bits[0]} tag takes at least one argument: the asset path'
-    )
-  bits[1] = construct_relative_path(parser.origin.template_name, bits[1])
-  return NeomImportNode(parser.compile_filter(bits[1]))
+class Entity(Stuff, Generic[T, ID]):
+  """A class describing domain entity."""
+
+  @abstractmethod
+  def Identity(self) -> ID:
+    """Entities have an identity. Returns identity of this entity."""
+
+  @abstractmethod
+  def SameIdentityAs(self, other: T) -> bool:
+    """Entities compare by identity, not by attributes.
+    param(other) the other entity.
+    Returns true when identities are the same, regardles of other attributes.
+    """

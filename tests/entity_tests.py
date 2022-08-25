@@ -27,40 +27,39 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from django.template import Library, Node
-from django.template.base import FilterExpression, Parser, Token
-from django.template.loader_tags import construct_relative_path
+"""Entity tests."""
 
-register = Library()
+from __future__ import annotations
 
+from datetime import datetime
+from typing import ForwardRef
+from unittest import TestCase
 
-class NeomImportNode(Node):
-  def __init__(self, template: FilterExpression, *args, **kwargs):
-    self.template = template
-    super().__init__(*args, **kwargs)
-
-  def render(self, context):
-    subpath = self.template.resolve(context)
-    fullpath = (
-      construct_relative_path(self.origin.template_name, subpath),
-    )
-
-    cache = context.render_context.dicts[0].setdefault(self, {})
-    template = cache.get(fullpath)
-
-    if not template:
-      template = context.template.engine.select_template(fullpath)
-      cache[fullpath] = template
-
-    return template.render(context)
+from neom.new_ddd.shared import Entity, Field
 
 
-@register.tag
-def neom_import(parser: Parser, token: Token):
-  bits = token.split_contents()
-  if len(bits) < 2:
-    raise template.TemplateSyntaxError(
-      f'{bits[0]} tag takes at least one argument: the asset path'
-    )
-  bits[1] = construct_relative_path(parser.origin.template_name, bits[1])
-  return NeomImportNode(parser.compile_filter(bits[1]))
+class EntityDeclarationTestCase(TestCase):
+  """Entity declaration test case."""
+
+  def test_definition(self):
+    """Test most common entity definition."""
+
+    class Person(Entity[ForwardRef('Person'), str]):
+      """Dummy."""
+      name: Field[str]
+      age: Field[int]
+      birth: Field[datetime]
+
+      def Identity(self) -> str:
+        return self.name
+
+      def SameIdentityAs(self, other: Person) -> bool:
+        return self.Identity() == other.Identity()
+
+    person = Person(name='Bruce Banner', age=3, birth=datetime(2000, 10, 1))
+
+    self.assertIsInstance(person, Person)
+    self.assertEqual(person.name, 'Bruce Banner')
+    self.assertEqual(person.age, 3)
+    self.assertEqual(person.birth, datetime(2000, 10, 1))
+    self.assertEqual(person.Identity(), 'Bruce Banner')

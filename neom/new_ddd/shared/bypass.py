@@ -27,40 +27,50 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from django.template import Library, Node
-from django.template.base import FilterExpression, Parser, Token
-from django.template.loader_tags import construct_relative_path
-
-register = Library()
+"""Temporary module to put domain related classes."""
 
 
-class NeomImportNode(Node):
-  def __init__(self, template: FilterExpression, *args, **kwargs):
-    self.template = template
-    super().__init__(*args, **kwargs)
-
-  def render(self, context):
-    subpath = self.template.resolve(context)
-    fullpath = (
-      construct_relative_path(self.origin.template_name, subpath),
-    )
-
-    cache = context.render_context.dicts[0].setdefault(self, {})
-    template = cache.get(fullpath)
-
-    if not template:
-      template = context.template.engine.select_template(fullpath)
-      cache[fullpath] = template
-
-    return template.render(context)
+class Service:  # pylint:disable=too-few-public-methods
+  """TODO: Domain service declaration."""
 
 
-@register.tag
-def neom_import(parser: Parser, token: Token):
-  bits = token.split_contents()
-  if len(bits) < 2:
-    raise template.TemplateSyntaxError(
-      f'{bits[0]} tag takes at least one argument: the asset path'
-    )
-  bits[1] = construct_relative_path(parser.origin.template_name, bits[1])
-  return NeomImportNode(parser.compile_filter(bits[1]))
+class Repository:  # pylint:disable=too-few-public-methods
+  """TODO: Domain model entity repository."""
+
+
+class QuerySet:  # pylint:disable=too-few-public-methods
+  """TODO: Domain model query set application."""
+
+
+class Error(Exception):
+  """DDD Errors"""
+
+
+class DomainError(Error):
+  """Entities, repositories and services base error for user cases.
+  This exceptions does not break the workflow."""
+
+
+class NoIdentityError(DomainError):
+  """Notify the use"""
+
+  def __init__(self, cls):
+    super().__init__(cls)
+    self._cls = cls
+
+  def __str__(self):
+    return f'{self._cls.__qualname__} without identity'
+
+
+class RepositoryError(DomainError):
+  """Find, Store, Delete, Remove errors"""
+
+
+class ServiceError(DomainError):
+  """Service logic error."""
+
+
+class NotFoundError(RepositoryError):
+  """Raised when Repository.Find doest not foun.
+  Connection and transaction errors not included.
+  """

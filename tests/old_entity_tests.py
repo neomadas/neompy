@@ -27,40 +27,29 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from django.template import Library, Node
-from django.template.base import FilterExpression, Parser, Token
-from django.template.loader_tags import construct_relative_path
+"""Temporary tests to port IntEnum support."""
 
-register = Library()
+from __future__ import annotations
+
+from unittest import TestCase
+
+from django.db.models import IntegerChoices
+
+from neom.lib.enum import IntEnum
 
 
-class NeomImportNode(Node):
-  def __init__(self, template: FilterExpression, *args, **kwargs):
-    self.template = template
-    super().__init__(*args, **kwargs)
+class IntEnumTestCase(TestCase):
+  class Colors(IntEnum):
+    RED = 0
+    GREEN = 1
+    BLUE = 2
+    YELLOW = 3
 
-  def render(self, context):
-    subpath = self.template.resolve(context)
-    fullpath = (
-      construct_relative_path(self.origin.template_name, subpath),
+  def test_integer_choices_classname(self):
+    integerChoices = self.Colors.ToIntegerChoices()
+    self.assertEqual(integerChoices.__name__, 'ColorsChoices')
+
+  def test_is_type_IntegerChoices(self):
+    self.assertTrue(
+      issubclass(self.Colors.ToIntegerChoices(), IntegerChoices)
     )
-
-    cache = context.render_context.dicts[0].setdefault(self, {})
-    template = cache.get(fullpath)
-
-    if not template:
-      template = context.template.engine.select_template(fullpath)
-      cache[fullpath] = template
-
-    return template.render(context)
-
-
-@register.tag
-def neom_import(parser: Parser, token: Token):
-  bits = token.split_contents()
-  if len(bits) < 2:
-    raise template.TemplateSyntaxError(
-      f'{bits[0]} tag takes at least one argument: the asset path'
-    )
-  bits[1] = construct_relative_path(parser.origin.template_name, bits[1])
-  return NeomImportNode(parser.compile_filter(bits[1]))

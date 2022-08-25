@@ -25,14 +25,14 @@
 # PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
 # LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.from pathlib import Path
+# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import subprocess
 from pathlib import Path
 
-from django.core.management.base import BaseCommand, CommandError
-from django.core.management.base import CommandParser
 from django.conf import settings
+from django.core.management.base import (BaseCommand, CommandError,
+                                         CommandParser)
 
 try:
   import coverage
@@ -58,9 +58,19 @@ class Command(BaseCommand):
     testmodule = options['test-module']
     try:
       subprocess.run(
-        ' '.join(('coverage', 'run', '--source=.', 'manage.py', 'test',
-                  testmodule)),
-        shell=True, check=True)
+        ' '.join(
+          (
+            'coverage',
+            'run',
+            '--source=.',
+            'manage.py',
+            'test',
+            testmodule,
+          )
+        ),
+        shell=True,
+        check=True,
+      )
     except subprocess.CalledProcessError:
       return
     subprocess.run(['coverage', 'html'])

@@ -27,40 +27,32 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from django.template import Library, Node
-from django.template.base import FilterExpression, Parser, Token
-from django.template.loader_tags import construct_relative_path
+"""This module is under construction.
+It's used to mark the domain value object role for classes defined in domain."""
 
-register = Library()
+from __future__ import annotations
 
+from abc import abstractmethod
+from typing import Generic, TypeVar
 
-class NeomImportNode(Node):
-  def __init__(self, template: FilterExpression, *args, **kwargs):
-    self.template = template
-    super().__init__(*args, **kwargs)
+from .stuff import Stuff
 
-  def render(self, context):
-    subpath = self.template.resolve(context)
-    fullpath = (
-      construct_relative_path(self.origin.template_name, subpath),
-    )
+__all__ = ['ValueObject']
 
-    cache = context.render_context.dicts[0].setdefault(self, {})
-    template = cache.get(fullpath)
-
-    if not template:
-      template = context.template.engine.select_template(fullpath)
-      cache[fullpath] = template
-
-    return template.render(context)
+T = TypeVar('T')
 
 
-@register.tag
-def neom_import(parser: Parser, token: Token):
-  bits = token.split_contents()
-  if len(bits) < 2:
-    raise template.TemplateSyntaxError(
-      f'{bits[0]} tag takes at least one argument: the asset path'
-    )
-  bits[1] = construct_relative_path(parser.origin.template_name, bits[1])
-  return NeomImportNode(parser.compile_filter(bits[1]))
+class ValueObject(Stuff, Generic[T]):
+  """A class describing domain value objects."""
+
+  @abstractmethod
+  def SameValueAs(self, other: T) -> bool:
+    """Value objects compare by member values (don't have identity).
+    param other The other value object.
+    return ``true`` if the given value object's and this value object's
+    members are the same."""
+
+  @abstractmethod
+  def Copy(self) -> T:
+    """Value objects can be freely copied.
+    return A safe, deep copy of this value object."""

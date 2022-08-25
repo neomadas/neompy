@@ -25,13 +25,13 @@
 # PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
 # LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.from pathlib import Path
+# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 from pathlib import Path
 
-from django.core.management.base import BaseCommand, CommandError
-from django.core.management.base import CommandParser
 from django.conf import settings
+from django.core.management.base import (BaseCommand, CommandError,
+                                         CommandParser)
 
 try:
   import autopep8
@@ -48,8 +48,11 @@ class Command(BaseCommand):
   help = 'Apply pep8 format each python file.'
 
   def add_arguments(self, parser: CommandParser):
-    parser.add_argument('--file', '-f',
-                        help='Use when you want to apply format this file')
+    parser.add_argument(
+      '--file',
+      '-f',
+      help='Use when you want to apply format this file',
+    )
 
   def handle(self, *args, **options):
     basedir = Path(settings.BASE_DIR)
@@ -59,7 +62,9 @@ class Command(BaseCommand):
 
     autopep8.DEFAULT_INDENT_SIZE = 2
 
-    paths = ([options['file']] if options['file'] else basedir.glob('**/*.py'))
+    paths = (
+      [options['file']] if options['file'] else basedir.glob('**/*.py')
+    )
 
     for path in paths:
       name = str(path)

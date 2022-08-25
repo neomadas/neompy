@@ -27,7 +27,6 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from inspect import isclass, isfunction
 from typing import get_type_hints
 
 
@@ -40,14 +39,15 @@ def AutoWire(cls):
         setattr(self, name, call())
       self.__init__(*args, **kwargs)
       return self
+
     return wrapper
+
   type_hints = get_type_hints(cls)
   cls.__new__ = new_decoration(cls.__new__, type_hints)
   return cls
 
 
 class Manager:
-
   def __init__(self):
     self.pairs = {}
 
@@ -59,6 +59,7 @@ manager = Manager()
 
 # new api
 
+
 def wire(f):
   def wrap(f, type_hints):
     def wrapper(*args, **kwargs):
@@ -66,7 +67,9 @@ def wire(f):
         if isinstance(key, Provide):
           kwargs[name] = manager.pairs[key.it]()
       return f(*args, **kwargs)
+
     return wrapper
+
   type_hints = get_type_hints(f)
   return wrap(f, type_hints)
 
@@ -81,14 +84,17 @@ def Wireable(tg):
           setattr(self, name, call())
       self.__init__(*args, **kwargs)
       return self
+
     return wrapper
+
   type_hints = get_type_hints(tg)
   tg.__new__ = new_decoration(tg.__new__, type_hints)
   return tg
 
 
 class Provide:
-  __slots__ = 'it',
+  __slots__ = ('it',)
+
   def __init__(self, it):
     self.it = it
 
@@ -102,19 +108,23 @@ class Provider:
     self._doc = doc
 
   def __new__(cls, *args, **_):
-    if (len(args) == 3 and
-        isinstance(args[0], str) and
-        isinstance(args[1], tuple)):
-      raise TypeError(f"Cannot subclass {cls!r}")
+    if (
+        len(args) == 3
+        and isinstance(args[0], str)
+        and isinstance(args[1], tuple)
+    ):
+      raise TypeError(f'Cannot subclass {cls!r}')
     return super().__new__(cls)
 
   def __init_subclass__(self, /, *_, **ks):
     if '_root' not in ks:
       raise TypeError('Cannot subclass provider classes')
 
-  def __copy__(self): return self
+  def __copy__(self):
+    return self
 
-  def __deepcopy__(self, _): return self
+  def __deepcopy__(self, _):
+    return self
 
   def __eq__(self, other):
     if not isinstance(other, _SpecialForm):
@@ -143,18 +153,20 @@ class Provider:
     return Provide(provider)
 
 
-Wired = Provider('Wired', doc=
-  """Declare a dependency wireable class.
+Wired = Provider(
+  'Wired',
+  doc="""Declare a dependency wireable class.
 
   @Wireable
   class Service:
-    member: Wired[Member]
+  member: Wired[Member]
 
-    @wire
-    def process(argument, another: Wired[Another]):
-      return None
+  @wire
+  def process(argument, another: Wired[Another]):
+    return None
 
   @wire
   def process(argument, extra: Wired[Extra]):
-    return None
-  """)
+  return None
+  """,
+)

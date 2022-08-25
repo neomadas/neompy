@@ -29,8 +29,8 @@
 
 from importlib.util import module_from_spec, spec_from_file_location
 
-from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
+from django.core.management.base import BaseCommand, CommandError
 
 
 class Command(BaseCommand):
