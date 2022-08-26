@@ -40,7 +40,7 @@ from typing import (Any, Callable, Dict, Generic, List, NamedTuple, Tuple,
 
 from .exceptions import BadMemberError
 
-__all__ = ('Stuff', 'Field')
+__all__ = ('Field',)
 
 T = TypeVar('T')
 
