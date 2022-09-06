@@ -33,7 +33,7 @@ from __future__ import annotations
 
 from unittest import TestCase
 
-from neom.new_ddd.shared.not_specification import NotSpecification
+from neom.new_ddd.shared_.not_specification import NotSpecification
 
 from .spec_common.false_spec import FalseSpec
 from .spec_common.true_spec import TrueSpec

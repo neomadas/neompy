@@ -31,10 +31,10 @@
 It's used to mark the domain roles.
 """
 
-from .abstract_specification import *
-from .entity import *
-from .entity_support import *
-from .identity import *
-from .stuff import *
-from .value_object import *
-from .value_object_support import *
+from .shared_.abstract_specification import *
+from .shared_.entity import *
+from .shared_.entity_support import *
+from .shared_.identity import *
+from .shared_.stuff import *
+from .shared_.value_object import *
+from .shared_.value_object_support import *
