@@ -35,15 +35,16 @@ from __future__ import annotations
 import re
 from typing import Final, Generic, Optional, Type, TypeVar
 
-from .shared import ValueObject, _idcache
+from .shared_.value_object_support import ValueObjectSupport
+from .shared_.stuff import Field
 
 
-class Phone(ValueObject):
+class Phone(ValueObjectSupport):
   """Compose phone."""
 
-  country: Optional[int]
-  area: Optional[int]
-  number: Final[int]
+  country: Field[Optional[int]]
+  area: Field[Optional[int]]
+  number: Field[Final[int]]
 
 
 class Mobile(Phone):
@@ -74,10 +75,10 @@ class Mobile(Phone):
     return Mobile(country=country, area=area, number=number)
 
 
-class Email(ValueObject):
+class Email(ValueObjectSupport):
   """Email parsed."""
 
-  address: str
+  address: Field[str]
 
   REGEX = r'^\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b$'
 
@@ -93,10 +94,11 @@ class Email(ValueObject):
 K = TypeVar('K')
 
 
-class Key(ValueObject, Generic[K]):
+# NEXT-TODO: Use only ValueObject
+class Key(ValueObjectSupport, Generic[K]):
   """Entity key."""
 
-  k: K
+  k: Field[K]
 
   def __hash__(self) -> int:
     return hash(self.k)
@@ -113,7 +115,7 @@ class Key(ValueObject, Generic[K]):
     """Generate next valid key."""
     print(cls(0))
 
-  @_idcache
+  # NEXT-TODO: @_idcache
   def __class_getitem__(self, k: K):
     return Key
 

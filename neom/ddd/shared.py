@@ -35,6 +35,7 @@ from __future__ import annotations
 
 from abc import ABC, ABCMeta, abstractmethod
 from functools import lru_cache, wraps
+from sys import version_info
 from types import CodeType, FunctionType
 from typing import (Callable, Generic, NoReturn, Type, TypeVar, _GenericAlias,
                     _SpecialForm, cast, get_type_hints)
@@ -48,6 +49,10 @@ class Stuff(ABC):
 T = TypeVar('T')
 ID = TypeVar('ID')
 ORD = -3
+
+# TODO: remove after move new_ddd support
+if version_info.minor > 9:
+  ORD -= 1
 
 
 class MetaEntity(ABCMeta):
