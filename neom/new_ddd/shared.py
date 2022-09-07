@@ -27,15 +27,14 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""False specifications."""
+"""This module is under construction.
+It's used to mark the domain roles.
+"""
 
-from __future__ import annotations
-
-from neom.new_ddd.shared import AbstractSpecification
-
-__all__ = ('FalseSpec',)
-
-
-class FalseSpec(AbstractSpecification[object]):
-  def IsSatisfiedBy(self, t: object) -> bool:
-    return False
+from .shared_.abstract_specification import AbstractSpecification
+from .shared_.entity import Entity
+from .shared_.entity_support import EntitySupport
+from .shared_.identity import Identity
+from .shared_.stuff import Field, Stuff
+from .shared_.value_object import ValueObject
+from .shared_.value_object_support import ValueObjectSupport

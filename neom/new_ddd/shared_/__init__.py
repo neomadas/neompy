@@ -26,16 +26,3 @@
 # LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-"""False specifications."""
-
-from __future__ import annotations
-
-from neom.new_ddd.shared import AbstractSpecification
-
-__all__ = ('FalseSpec',)
-
-
-class FalseSpec(AbstractSpecification[object]):
-  def IsSatisfiedBy(self, t: object) -> bool:
-    return False
