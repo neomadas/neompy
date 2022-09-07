@@ -42,9 +42,9 @@ from .shared_.stuff import Field
 class Phone(ValueObjectSupport):
   """Compose phone."""
 
-  country: Field[Optional[int]]
-  area: Field[Optional[int]]
-  number: Field[Final[int]]
+  country: Field[int]
+  area: Field[int]
+  number: Field[int]
 
 
 class Mobile(Phone):
