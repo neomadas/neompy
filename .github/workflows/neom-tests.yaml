@@ -22,7 +22,7 @@ jobs:
           pip install -e .
       - name: Lint with pylint
         run: |
-          pylint neom/new_ddd/shared/*.py --disable fixme
+          pylint neom/new_ddd/shared_/*.py --disable fixme
           pylint --rcfile .pylintrc-tests tests/*.py --disable fixme
       - name: Test with unittest
         run: |
