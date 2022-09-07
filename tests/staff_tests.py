@@ -31,14 +31,13 @@
 
 from __future__ import annotations
 
-from typing import ForwardRef
 from unittest import TestCase
 
 
 class PhoneTestCase(TestCase):
 
   def test_creation(self):
-    from neom.new_ddd.staff import Phone
+    from neom.new_ddd.staff import Phone  # pylint:disable=C0415
 
     phone = Phone(country=51, area=123, number=1234567)
 
