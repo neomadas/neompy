@@ -152,19 +152,6 @@ disable=raw-checker-failed,
         useless-suppression,
         deprecated-pragma,
         use-symbolic-message-instead,
-        missing-function-docstring,
-        missing-class-docstring,
-        missing-module-docstring,
-        too-few-public-methods,
-# begin tmp
-        unexpected-keyword-arg,
-        no-member,
-        too-many-function-args,
-        too-many-locals,
-        import-outside-toplevel,
-        redefined-builtin,
-        raise-missing-from,
-# end tmp
         R0401
 
 # Enable the message, report, category or checker with the given id(s). You can

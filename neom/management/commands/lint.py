@@ -26,3 +26,23 @@
 # LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+from pathlib import Path
+
+from django.core.management.base import (BaseCommand, CommandError,
+                                         CommandParser)
+
+from pylint import run_pylint
+
+
+class Command(BaseCommand):
+  help = 'Run lint tool.'
+
+  def add_arguments(self, parser: CommandParser):
+    parser.add_argument('sourcedir', help='Source directory')
+
+  def handle(self, *args, **options):
+    basedir = Path(__file__)
+    sourcedir = options['sourcedir']
+    rcfile = basedir.parent.parent.parent.parent / '.pylintrc'
+    run_pylint(('--rcfile', str(rcfile), sourcedir, '--disable', 'fixme'))
