@@ -164,6 +164,12 @@ disable=raw-checker-failed,
         import-outside-toplevel,
         redefined-builtin,
         raise-missing-from,
+        relative-beyond-top-level,
+        broad-except,
+        too-many-branches,
+        consider-merging-isinstance,
+        protected-access,
+        super-init-not-called,
 # end tmp
         R0401
 
