@@ -27,14 +27,20 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""This module is under construction.
-It's used to mark the domain roles.
-"""
+"""Staff tests."""
 
-from .abstract_specification import *
-from .entity import *
-from .entity_support import *
-from .identity import *
-from .stuff import *
-from .value_object import *
-from .value_object_support import *
+from __future__ import annotations
+
+from unittest import TestCase
+
+
+class PhoneTestCase(TestCase):
+
+  def test_creation(self):
+    from neom.new_ddd.staff import Phone  # pylint:disable=C0415
+
+    phone = Phone(country=51, area=123, number=1234567)
+
+    self.assertEqual(51, phone.country)
+    self.assertEqual(123, phone.area)
+    self.assertEqual(1234567, phone.number)
