@@ -170,6 +170,7 @@ disable=raw-checker-failed,
         consider-merging-isinstance,
         protected-access,
         super-init-not-called,
+        too-many-lines,
 # end tmp
         R0401
 
