@@ -44,5 +44,5 @@ class Command(BaseCommand):
   def handle(self, *args, **options):
     basedir = Path(__file__)
     sourcedir = options['sourcedir']
-    rcfile = basedir.parent.parent.parent.parent / '.pylintrc'
+    rcfile = basedir.parent.parent.parent / '.pylintrc'
     run_pylint(('--rcfile', str(rcfile), sourcedir, '--disable', 'fixme'))
