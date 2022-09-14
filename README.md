@@ -13,3 +13,4 @@ Sinek Development tools for internal projects with strong web development coupli
 ## Contributors
 
 * @Fabwert
+* @jose-mrqz
