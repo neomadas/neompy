@@ -29,7 +29,6 @@
 
 import subprocess
 from pathlib import Path
-from xml.dom import minicompat
 
 from django.conf import settings
 from django.core.management.base import (BaseCommand, CommandError,
@@ -45,7 +44,8 @@ class Command(BaseCommand):
 
   def add_arguments(self, parser: CommandParser):
     parser.add_argument('module', help='Source code base')
-    parser.add_argument('min_score', help='Minimum score to show')
+    parser.add_argument('--min_score', default='B', choices=['A', 'B', 'C', 'D', 'E', 'F'], help='Minimum score to show')
+    parser.add_argument('--check', default=False, action='store_true', help='Raise an exception when complexity fails')
 
   def handle(self, *args, **options):
     basedir = Path(settings.BASE_DIR)
@@ -58,23 +58,25 @@ class Command(BaseCommand):
 
     module = options['module']
     min_score = options['min_score']
+    check = options['check']
 
-    try:
-      subprocess.run(
-        ' '.join(
-          (
-            'radon',
-            'cc',
-            '--show-complexity',
-            '--order',
-            'SCORE',
-            '--min',
-            min_score,
-            module,
-          )
-        ),
-        shell=True,
-        check=True,
-      )
-    except subprocess.CalledProcessError:
-      return
+    result = subprocess.run(
+      ' '.join(
+        (
+          'radon',
+          'cc',
+          '--show-complexity',
+          '--order',
+          'SCORE',
+          '--min',
+          min_score,
+          module,
+        )
+      ),
+      shell=True,
+      check=True,
+      capture_output=check,
+    )
+
+    if check and result.stdout:
+      raise CommandError(f'Check complexity error:\n{result.stdout.decode()}')
