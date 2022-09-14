@@ -39,44 +39,58 @@ try:
 except ImportError as error:
     raise CommandError('radon package not installed') from error
 
+
 class Command(BaseCommand):
-  help = 'Run analysis tool to compute Cyclomatic Complexity.'
+    help = 'Run analysis tool to compute Cyclomatic Complexity.'
 
-  def add_arguments(self, parser: CommandParser):
-    parser.add_argument('module', help='Source code base')
-    parser.add_argument('--min_score', default='B', choices=['A', 'B', 'C', 'D', 'E', 'F'], help='Minimum score to show')
-    parser.add_argument('--check', default=False, action='store_true', help='Raise an exception when complexity fails')
+    def add_arguments(self, parser: CommandParser):
+        parser.add_argument('module', help='Source code base')
+        parser.add_argument(
+            '--min_score',
+            default='B',
+            choices=[
+                'A',
+                'B',
+                'C',
+                'D',
+                'E',
+                'F'],
+            help='Minimum score to show')
+        parser.add_argument(
+            '--check', default=False, action='store_true',
+            help='Raise an exception when complexity fails')
 
-  def handle(self, *args, **options):
-    basedir = Path(settings.BASE_DIR)
+    def handle(self, *args, **options):
+        basedir = Path(settings.BASE_DIR)
 
-    if not basedir.is_dir():
-      raise CommandError(f'Invalid project directory: {basedir}')
+        if not basedir.is_dir():
+            raise CommandError(f'Invalid project directory: {basedir}')
 
-    if not (basedir / 'manage.py').exists():
-      raise CommandError(f'No project directory: {basedir}')
+        if not (basedir / 'manage.py').exists():
+            raise CommandError(f'No project directory: {basedir}')
 
-    module = options['module']
-    min_score = options['min_score']
-    check = options['check']
+        module = options['module']
+        min_score = options['min_score']
+        check = options['check']
 
-    result = subprocess.run(
-      ' '.join(
-        (
-          'radon',
-          'cc',
-          '--show-complexity',
-          '--order',
-          'SCORE',
-          '--min',
-          min_score,
-          module,
+        result = subprocess.run(
+            ' '.join(
+                (
+                    'radon',
+                    'cc',
+                    '--show-complexity',
+                    '--order',
+                    'SCORE',
+                    '--min',
+                    min_score,
+                    module,
+                )
+            ),
+            shell=True,
+            check=True,
+            capture_output=check,
         )
-      ),
-      shell=True,
-      check=True,
-      capture_output=check,
-    )
 
-    if check and result.stdout:
-      raise CommandError(f'Check complexity error:\n{result.stdout.decode()}')
+        if check and result.stdout:
+            raise CommandError(
+                f'Check complexity error:\n{result.stdout.decode()}')
