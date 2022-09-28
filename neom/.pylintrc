@@ -75,7 +75,7 @@ limit-inference-results=100
 
 # List of plugins (as comma separated values of python module names) to load,
 # usually to register additional checkers.
-load-plugins=
+load-plugins=pylint_quotes
 
 # Pickle collected data for later comparisons.
 persistent=yes
@@ -636,3 +636,7 @@ valid-classmethod-first-arg=cls
 
 # List of valid names for the first argument in a metaclass class method.
 valid-metaclass-classmethod-first-arg=cls
+
+string-quote=single
+triple-quote=single
+docstring-quote=double
