@@ -83,6 +83,10 @@ class Stuff(ABC, metaclass=_MetaStuff):
   _fields = {}
   _kinds = {}
 
+  def __init__(self, **kwargs):
+    for key in kwargs:
+      setattr(self, key, kwargs[key])
+
   def __repr__(self):
     fields = [f'{f.name}={f!r}' for _, f in sorted(self._fields.items())]
     return f'{self._kindname()}<{", ".join(fields)}>'
@@ -137,12 +141,13 @@ class Stuff(ABC, metaclass=_MetaStuff):
         cls._fields[name] = field
       cls._UpdateKinds()
 
-      _StateNewAttribute(
-        cls, '__init__',
-        _InitFn(
-          cls._fields.values(),
-          'self', modules[cls.__module__].__dict__
-          if cls.__module__ in modules else{},))
+      if not hasattr(cls, '__init__'):
+        _StateNewAttribute(
+          cls, '__init__',
+          _InitFn(
+            cls._fields.values(),
+            'self', modules[cls.__module__].__dict__
+            if cls.__module__ in modules else{},))
 
   @classmethod
   def _UpdateKinds(cls: Type[Stuff]):
@@ -166,11 +171,10 @@ def _InitFn(fields: List[Field], selfname: str,
 
 
 def _StateNewAttribute(
-    cls: Type[object],
-    name: str, value: Callable[..., None]):
+    cls: Type[object], name: str, value: Callable[..., None]):
   """Never overwrites an existing member."""
   if name in cls.__dict__:
-    raise ValueError(f'{cls}: has name={name} with value={value}')
+    raise ValueError(f'{cls}: has attribute name={name} with value={value}')
   _StateQualname(cls, value)
   setattr(cls, name, value)
 
