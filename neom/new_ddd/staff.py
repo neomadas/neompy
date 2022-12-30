@@ -33,7 +33,6 @@ Common used in entities or value objects."""
 from __future__ import annotations
 
 import re
-from typing import Generic, Type, TypeVar
 
 from .shared_.stuff import Field
 from .shared_.value_object_support import ValueObjectSupport
@@ -64,7 +63,7 @@ class Mobile(Phone):
         match = re.match(Mobile.REGEX, fmt)
         if not match:
             raise ValueError(
-                f"Invalid mobile phone {fmt}. User (+xx) xxx-xxx-xxx"
+                f"Invalid mobile phone {fmt}. Use (+xx) xxx-xxx-xxx."
             )
 
         groups = match.groups()
@@ -89,35 +88,3 @@ class Email(ValueObjectSupport):
 
     def __str__(self):
         return self.address
-
-
-K = TypeVar("K")
-
-
-# NEXT-TODO: Use only ValueObject
-class Key(ValueObjectSupport, Generic[K]):
-    """Entity key."""
-
-    k: Field[K]
-
-    def __hash__(self) -> int:
-        return hash(self.k)
-
-    def __repr__(self):
-        return f"Key<{self.k}: {K}={K}>"
-
-    def _keyType(self) -> Type[K]:
-        """key type."""
-        return self.__orig_class__[0]
-
-    @classmethod
-    def Next(cls):
-        """Generate next valid key."""
-        print(cls(0))
-
-    # NEXT-TODO: @_idcache
-    def __class_getitem__(self, k: K):
-        return Key
-
-
-IntKey = Key[int]

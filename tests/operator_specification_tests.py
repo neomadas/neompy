@@ -27,7 +27,7 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""Method specification tests."""
+"""Operator specification tests."""
 
 from __future__ import annotations
 
@@ -37,14 +37,14 @@ from .spec_common.false_spec import FalseSpec
 from .spec_common.true_spec import TrueSpec
 
 
-class MethodSpecificationTestCase(TestCase):
+class OperatorSpecificationTestCase(TestCase):
     def setUp(self):
         """Start basic specifications."""
         self.trueSpec = TrueSpec()
         self.falseSpec = FalseSpec()
 
     def test_and(self):
-        """Test and method."""
+        """Test and operator."""
         self.assertTrue(
             self.trueSpec.And(self.trueSpec).IsSatisfiedBy(object())
         )
@@ -59,7 +59,7 @@ class MethodSpecificationTestCase(TestCase):
         )
 
     def test_or(self):
-        """Test or method."""
+        """Test or operator."""
         self.assertTrue(self.trueSpec.Or(self.trueSpec).IsSatisfiedBy(object()))
         self.assertTrue(
             self.trueSpec.Or(self.falseSpec).IsSatisfiedBy(object())
@@ -72,10 +72,6 @@ class MethodSpecificationTestCase(TestCase):
         )
 
     def test_not(self):
-        """Test not method."""
-        self.assertTrue(
-            self.trueSpec.Not(self.falseSpec).IsSatisfiedBy(object())
-        )
-        self.assertFalse(
-            self.falseSpec.Not(self.trueSpec).IsSatisfiedBy(object())
-        )
+        """Test not operator."""
+        self.assertFalse(self.trueSpec.Not().IsSatisfiedBy(object()))
+        self.assertTrue(self.falseSpec.Not().IsSatisfiedBy(object()))
