@@ -1,2 +1,0 @@
-# Copyright Neomadas, Inc. All rights reserved.
-pre-commit==2.21.0
