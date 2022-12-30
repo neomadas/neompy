@@ -27,48 +27,55 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""ValueObjectSupport tests."""
+"""Method specification tests."""
 
 from __future__ import annotations
 
-from typing import ForwardRef
 from unittest import TestCase
 
-from neom.new_ddd.shared import Field, ValueObjectSupport
+from .spec_common.false_spec import FalseSpec
+from .spec_common.true_spec import TrueSpec
 
 
-class ValueObjectSupportTestCase(TestCase):
-    """ValueObjectSupport test case."""
+class MethodSpecificationTestCase(TestCase):
+    def setUp(self):
+        """Start basic specifications."""
+        self.trueSpec = TrueSpec()
+        self.falseSpec = FalseSpec()
 
-    def test_eq(self):
-        """Test eq method."""
+    def test_and(self):
+        """Test and method."""
+        self.assertTrue(
+            self.trueSpec.And(self.trueSpec).IsSatisfiedBy(object())
+        )
+        self.assertFalse(
+            self.trueSpec.And(self.falseSpec).IsSatisfiedBy(object())
+        )
+        self.assertFalse(
+            self.falseSpec.And(self.trueSpec).IsSatisfiedBy(object())
+        )
+        self.assertFalse(
+            self.falseSpec.And(self.falseSpec).IsSatisfiedBy(object())
+        )
 
-        class XValueObject(ValueObjectSupport[ForwardRef("XValueObject")]):
-            name: Field[str]
+    def test_or(self):
+        """Test or method."""
+        self.assertTrue(self.trueSpec.Or(self.trueSpec).IsSatisfiedBy(object()))
+        self.assertTrue(
+            self.trueSpec.Or(self.falseSpec).IsSatisfiedBy(object())
+        )
+        self.assertTrue(
+            self.falseSpec.Or(self.trueSpec).IsSatisfiedBy(object())
+        )
+        self.assertFalse(
+            self.falseSpec.Or(self.falseSpec).IsSatisfiedBy(object())
+        )
 
-        class YValueObject(XValueObject):
-            age: Field[int]
-
-        vo1 = XValueObject(name="X")
-        vo2 = XValueObject(name="X")
-        vo3 = YValueObject(name="X", age=3)
-
-        self.assertEqual(vo1, vo2)
-        self.assertEqual(vo2, vo1)
-        self.assertNotEqual(vo2, vo3)
-        self.assertNotEqual(vo3, vo2)
-
-        self.assertTrue(vo1.SameValueAs(vo2))
-        self.assertFalse(vo2.SameValueAs(vo3))
-
-    def test_copy(self):
-        """Test Copy method."""
-
-        class Person(ValueObjectSupport[ForwardRef("XValueObject")]):
-            name: Field[str]
-
-        person = Person(name="Dummy")
-        otherPerson = person.Copy()
-
-        self.assertEqual(person.name, otherPerson.name)
-        self.assertTrue(person.SameValueAs(otherPerson))
+    def test_not(self):
+        """Test not method."""
+        self.assertTrue(
+            self.trueSpec.Not(self.falseSpec).IsSatisfiedBy(object())
+        )
+        self.assertFalse(
+            self.falseSpec.Not(self.trueSpec).IsSatisfiedBy(object())
+        )

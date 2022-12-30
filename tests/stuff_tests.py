@@ -32,6 +32,8 @@
 from __future__ import annotations
 
 from datetime import datetime
+from io import SEEK_SET, StringIO
+from typing import Type
 from unittest import TestCase
 
 from neom.new_ddd.shared import Field, Stuff
@@ -82,3 +84,43 @@ class StuffDeclarationTestCase(TestCase):
         self.assertEqual(person.name, "Bruce Banner")
         self.assertEqual(person.age, 3)
         self.assertEqual(person.birth, datetime(2000, 10, 1))
+
+
+class StuffRepresentationTestCase(TestCase):
+    """Stuff representation test case."""
+
+    def test_object(self):
+        """Test object process."""
+        person = self.Person(name="Bruce Wayne", age=30)
+
+        self.assertIsInstance(person, self.Person)
+        self.assertEqual(person.name, "Bruce Wayne")
+        self.assertEqual(person.age, 30)
+        self.assertEqual(
+            self._GetKindOut(person),
+            "Person<age=Field[<class 'int'> name=age, pkind=Person],"
+            " name=Field[<class 'str'> name=name, pkind=Person]>",
+        )
+
+    def test_class(self):
+        """Test class process."""
+        self.assertEqual(
+            self._GetKindOut(self.Person),
+            "Person<age=Field[<class 'int'> name=age, pkind=Person],"
+            " name=Field[<class 'str'> name=name, pkind=Person]>",
+        )
+
+    @staticmethod
+    def _GetKindOut(kind: Type[object] | object):
+        """Generate the kind output representation."""
+        kindIo = StringIO()
+        print(kind, sep="", end="", file=kindIo)
+        kindIo.seek(SEEK_SET)
+        kindOut = kindIo.read()
+        return kindOut
+
+    class Person(Stuff):
+        """Dummy."""
+
+        name: Field[str]
+        age: Field[int]

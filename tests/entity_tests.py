@@ -64,3 +64,4 @@ class EntityDeclarationTestCase(TestCase):
         self.assertEqual(person.age, 3)
         self.assertEqual(person.birth, datetime(2000, 10, 1))
         self.assertEqual(person.Identity(), "Bruce Banner")
+        self.assertTrue(person.SameIdentityAs(person))
