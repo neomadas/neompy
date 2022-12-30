@@ -154,7 +154,12 @@ class Stuff(ABC, metaclass=_MetaStuff):
                 cls._fields[name] = field
             cls._UpdateKinds()
 
-            if not hasattr(cls, "__init__"):
+            if (
+                hasattr(cls, "Meta")
+                and hasattr(cls.Meta, "__init__")
+                and isinstance(cls.Meta.__init__, bool)
+                and cls.Meta.__init__
+            ):
                 _StateNewAttribute(
                     cls,
                     "__init__",

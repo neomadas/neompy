@@ -33,13 +33,45 @@ from __future__ import annotations
 
 from unittest import TestCase
 
+from neom.new_ddd import staff
+
 
 class PhoneTestCase(TestCase):
     def test_creation(self):
-        from neom.new_ddd.staff import Phone  # pylint:disable=C0415
-
-        phone = Phone(country=51, area=123, number=1234567)
+        phone = staff.Phone(country=51, area=123, number=1234567)
 
         self.assertEqual(51, phone.country)
         self.assertEqual(123, phone.area)
         self.assertEqual(1234567, phone.number)
+
+
+class MobileTestCase(TestCase):
+    def test_creation(self):
+        mobile = staff.Mobile.Make("(+51) 987-654-321")
+        self.assertEqual(mobile.country, 51)
+        self.assertEqual(mobile.area, None)
+        self.assertEqual(mobile.number, 987654321)
+
+    def test_format(self):
+        mobile = staff.Mobile.Make("(+51) 987-654-321")
+        self.assertEqual(str(mobile), "(+51) 987-654-321")
+
+    def test_bad_creation(self):
+        with self.assertRaisesRegex(
+            ValueError,
+            r"Invalid mobile phone \+51987654321. Use \(\+xx\) xxx-xxx-xxx.",
+        ):
+            staff.Mobile.Make("+51987654321")
+
+
+class EmailTestCase(TestCase):
+    def test_creation_and_format(self):
+        email = staff.Email(address="dummy@staff.ui")
+        self.assertEqual(str(email), "dummy@staff.ui")
+
+    def test_validate(self):
+        email = staff.Email(address="dummy.at.staff.ui")
+        with self.assertRaisesRegex(
+            ValueError, r"Invalid email address format dummy\.at\.staff\.ui"
+        ):
+            email.Validate()

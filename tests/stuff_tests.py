@@ -37,6 +37,7 @@ from typing import Type
 from unittest import TestCase
 
 from neom.new_ddd.shared import Field, Stuff
+from neom.new_ddd.shared_ import stuff
 
 
 class StuffDeclarationTestCase(TestCase):
@@ -124,3 +125,61 @@ class StuffRepresentationTestCase(TestCase):
 
         name: Field[str]
         age: Field[int]
+
+
+class StuffCreationTestCase(TestCase):
+    def test_bad_kindname(self):
+        with self.assertRaises(stuff.KindnameError) as cm:
+
+            class Dummy(Stuff):
+                @classmethod
+                def _kindname(cls):
+                    pass
+
+        self.assertEqual(
+            str(cm.exception),
+            "Class Dummy defines a ``_kindname()`` method that returns a"
+            " non-string (None)",
+        )
+
+    def test_with_state_init(self):
+        class Person(stuff.Stuff):
+            name: str
+
+            class Meta:
+                __init__ = True
+
+        person = Person("dummy")
+
+        self.assertEqual(person.name, "dummy")
+
+    def test_with_extra_init(self):
+        with self.assertRaisesRegex(
+            ValueError,
+            r"Person<name=Field\[<class 'str'> name=name, pkind=Person\]>: has"
+            r" attribute name=__init__ with value=<function"
+            r" __new_fn__\.<locals>\.__init__ at 0x\w+>",
+        ):
+
+            class Person(stuff.Stuff):
+                name: str
+                __init__ = True
+
+                class Meta:
+                    __init__ = True
+
+    def test_no_locals(self):
+        fn = stuff._NewFn("foo", [], ["pass"], localns=None)
+        self.assertIn("__new_fn__.<locals>.foo", str(fn))
+
+
+class FieldTestCase(TestCase):
+    def test_no_constructible(self):
+        field = stuff.Field[str]
+        field._FixState(stuff.Stuff(), "field")
+        with self.assertRaises(TypeError) as cm:
+            field()
+        self.assertEqual(
+            str(cm.exception),
+            "Cannot instantiate Field[<class 'str'> name=field, pkind=Stuff]",
+        )
