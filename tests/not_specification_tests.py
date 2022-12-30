@@ -40,13 +40,12 @@ from .spec_common.true_spec import TrueSpec
 
 
 class NotSpecificationTestCase(TestCase):
+    def test_not_is_satisfied_by(self):
+        trueSpec = TrueSpec()
+        falseSpec = FalseSpec()
 
-  def test_not_is_satisfied_by(self):
-    trueSpec = TrueSpec()
-    falseSpec = FalseSpec()
+        notSpecification = NotSpecification[object](trueSpec)
+        self.assertFalse(notSpecification.IsSatisfiedBy(object()))
 
-    notSpecification = NotSpecification[object](trueSpec)
-    self.assertFalse(notSpecification.IsSatisfiedBy(object()))
-
-    notSpecification = NotSpecification[object](falseSpec)
-    self.assertTrue(notSpecification.IsSatisfiedBy(object()))
+        notSpecification = NotSpecification[object](falseSpec)
+        self.assertTrue(notSpecification.IsSatisfiedBy(object()))

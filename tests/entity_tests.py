@@ -39,27 +39,28 @@ from neom.new_ddd.shared import Entity, Field
 
 
 class EntityDeclarationTestCase(TestCase):
-  """Entity declaration test case."""
+    """Entity declaration test case."""
 
-  def test_definition(self):
-    """Test most common entity definition."""
+    def test_definition(self):
+        """Test most common entity definition."""
 
-    class Person(Entity[ForwardRef('Person'), str]):
-      """Dummy."""
-      name: Field[str]
-      age: Field[int]
-      birth: Field[datetime]
+        class Person(Entity[ForwardRef("Person"), str]):
+            """Dummy."""
 
-      def Identity(self) -> str:
-        return self.name
+            name: Field[str]
+            age: Field[int]
+            birth: Field[datetime]
 
-      def SameIdentityAs(self, other: Person) -> bool:
-        return self.Identity() == other.Identity()
+            def Identity(self) -> str:
+                return self.name
 
-    person = Person(name='Bruce Banner', age=3, birth=datetime(2000, 10, 1))
+            def SameIdentityAs(self, other: Person) -> bool:
+                return self.Identity() == other.Identity()
 
-    self.assertIsInstance(person, Person)
-    self.assertEqual(person.name, 'Bruce Banner')
-    self.assertEqual(person.age, 3)
-    self.assertEqual(person.birth, datetime(2000, 10, 1))
-    self.assertEqual(person.Identity(), 'Bruce Banner')
+        person = Person(name="Bruce Banner", age=3, birth=datetime(2000, 10, 1))
+
+        self.assertIsInstance(person, Person)
+        self.assertEqual(person.name, "Bruce Banner")
+        self.assertEqual(person.age, 3)
+        self.assertEqual(person.birth, datetime(2000, 10, 1))
+        self.assertEqual(person.Identity(), "Bruce Banner")

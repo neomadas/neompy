@@ -36,20 +36,22 @@ from django.core.management.base import BaseCommand, CommandError
 
 
 class Command(BaseCommand):
-  help = 'Delete current db and recreate migrations to execute population data.'
+    help = (
+        "Delete current db and recreate migrations to execute population data."
+    )
 
-  def handle(self, *unused_args, **unsed_options):
-    basedir = Path(settings.BASE_DIR)
+    def handle(self, *unused_args, **unsed_options):
+        basedir = Path(settings.BASE_DIR)
 
-    if not basedir.is_dir():
-      raise CommandError(f'Invalid project directory: {basedir}')
+        if not basedir.is_dir():
+            raise CommandError(f"Invalid project directory: {basedir}")
 
-    dbpath = Path(settings.DATABASES['default']['NAME'])
-    if dbpath.exists():
-      dbpath.unlink()
-    else:
-      logging.warning(f'db path {dbpath} doesn't exist')
+        dbpath = Path(settings.DATABASES["default"]["NAME"])
+        if dbpath.exists():
+            dbpath.unlink()
+        else:
+            logging.warning(f"db path {dbpath} doesn't exist")
 
-    call_command('makemigrations')
-    call_command('migrate')
-    call_command('db-populate')
+        call_command("makemigrations")
+        call_command("migrate")
+        call_command("db-populate")

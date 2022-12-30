@@ -35,23 +35,26 @@ from typing import Final, TypeVar
 
 from .specification import Specification
 
-__all__ = ('AbstractSpecification',)
+__all__ = ("AbstractSpecification",)
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 class AbstractSpecification(Specification[T]):
-  """Base of composite ``Specification`` with ``and``, ``or`` and ``not``
-  default implementations."""
+    """Base of composite ``Specification`` with ``and``, ``or`` and ``not``
+    default implementations."""
 
-  def And(self, specification: Final[Specification[T]]) -> Specification[T]:
-    from .and_specification import AndSpecification  # pylint:disable=C0415
-    return AndSpecification(self, specification)
+    def And(self, specification: Final[Specification[T]]) -> Specification[T]:
+        from .and_specification import AndSpecification  # pylint:disable=C0415
 
-  def Or(self, specification: Final[Specification[T]]) -> Specification[T]:
-    from .or_specification import OrSpecification  # pylint:disable=C0415
-    return OrSpecification(self, specification)
+        return AndSpecification(self, specification)
 
-  def Not(self, specification: Final[Specification[T]]) -> Specification[T]:
-    from .not_specification import NotSpecification  # pylint:disable=C0415
-    return NotSpecification(specification)
+    def Or(self, specification: Final[Specification[T]]) -> Specification[T]:
+        from .or_specification import OrSpecification  # pylint:disable=C0415
+
+        return OrSpecification(self, specification)
+
+    def Not(self, specification: Final[Specification[T]]) -> Specification[T]:
+        from .not_specification import NotSpecification  # pylint:disable=C0415
+
+        return NotSpecification(specification)

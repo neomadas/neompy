@@ -35,9 +35,10 @@ from __future__ import annotations
 
 from .stuff import Field
 
-__all__ = ('Identity',)
+__all__ = ("Identity",)
 
 
 class Identity(Field):  # pylint:disable=too-few-public-methods
-  """Every class that inherits from EntitySupport must have exactly a identity.
-  """
+    """
+    Every class that inherits from EntitySupport must have exactly one identity.
+    """

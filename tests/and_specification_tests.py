@@ -40,19 +40,18 @@ from .spec_common.true_spec import TrueSpec
 
 
 class AndSpecificationTestCase(TestCase):
+    def test_and_is_satisfied_by(self):
+        trueSpec = TrueSpec()
+        falseSpec = FalseSpec()
 
-  def test_and_is_satisfied_by(self):
-    trueSpec = TrueSpec()
-    falseSpec = FalseSpec()
+        andSpecification = AndSpecification[object](trueSpec, trueSpec)
+        self.assertTrue(andSpecification.IsSatisfiedBy(object()))
 
-    andSpecification = AndSpecification[object](trueSpec, trueSpec)
-    self.assertTrue(andSpecification.IsSatisfiedBy(object()))
+        andSpecification = AndSpecification[object](falseSpec, trueSpec)
+        self.assertFalse(andSpecification.IsSatisfiedBy(object()))
 
-    andSpecification = AndSpecification[object](falseSpec, trueSpec)
-    self.assertFalse(andSpecification.IsSatisfiedBy(object()))
+        andSpecification = AndSpecification[object](trueSpec, falseSpec)
+        self.assertFalse(andSpecification.IsSatisfiedBy(object()))
 
-    andSpecification = AndSpecification[object](trueSpec, falseSpec)
-    self.assertFalse(andSpecification.IsSatisfiedBy(object()))
-
-    andSpecification = AndSpecification[object](falseSpec, falseSpec)
-    self.assertFalse(andSpecification.IsSatisfiedBy(object()))
+        andSpecification = AndSpecification[object](falseSpec, falseSpec)
+        self.assertFalse(andSpecification.IsSatisfiedBy(object()))

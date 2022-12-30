@@ -30,43 +30,42 @@
 from pathlib import Path
 
 from django.conf import settings
-from django.core.management.base import (BaseCommand, CommandError,
-                                         CommandParser)
+from django.core.management.base import BaseCommand, CommandError, CommandParser
 
 try:
-  import autopep8
+    import autopep8
 except ImportError as error:
-  raise CommandError('autopep8 package not installed') from error
+    raise CommandError("autopep8 package not installed") from error
 
 try:
-  import isort
+    import isort
 except ImportError as error:
-  raise CommandError('isort package not installed') from error
+    raise CommandError("isort package not installed") from error
 
 
 class Command(BaseCommand):
-  help = 'Apply pep8 format each python file.'
+    help = "Apply pep8 format each python file."
 
-  def add_arguments(self, parser: CommandParser):
-    parser.add_argument(
-      '--file',
-      '-f',
-      help='Use when you want to apply format this file',
-    )
+    def add_arguments(self, parser: CommandParser):
+        parser.add_argument(
+            "--file",
+            "-f",
+            help="Use when you want to apply format this file",
+        )
 
-  def handle(self, *args, **options):
-    basedir = Path(settings.BASE_DIR)
+    def handle(self, *args, **options):
+        basedir = Path(settings.BASE_DIR)
 
-    if not basedir.is_dir():
-      raise CommandError(f'Invalid project directory: {basedir}')
+        if not basedir.is_dir():
+            raise CommandError(f"Invalid project directory: {basedir}")
 
-    autopep8.DEFAULT_INDENT_SIZE = 2
+        autopep8.DEFAULT_INDENT_SIZE = 2
 
-    paths = (
-      [options['file']] if options['file'] else basedir.glob('**/*.py')
-    )
+        paths = (
+            [options["file"]] if options["file"] else basedir.glob("**/*.py")
+        )
 
-    for path in paths:
-      name = str(path)
-      autopep8.main(('autopep8', '-i', '-a', '-a', name))
-      isort.file(name, quiet=True)
+        for path in paths:
+            name = str(path)
+            autopep8.main(("autopep8", "-i", "-a", "-a", name))
+            isort.file(name, quiet=True)

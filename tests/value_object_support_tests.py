@@ -38,25 +38,25 @@ from neom.new_ddd.shared import Field, ValueObjectSupport
 
 
 class ValueObjectSupportTestCase(TestCase):
-  """ValueObjectSupport test case."""
+    """ValueObjectSupport test case."""
 
-  def test_eq(self):
-    """Test eq method."""
+    def test_eq(self):
+        """Test eq method."""
 
-    class XValueObject(ValueObjectSupport[ForwardRef('XValueObject')]):
-      name: Field[str]
+        class XValueObject(ValueObjectSupport[ForwardRef("XValueObject")]):
+            name: Field[str]
 
-    class YValueObject(XValueObject):
-      age: Field[int]
+        class YValueObject(XValueObject):
+            age: Field[int]
 
-    vo1 = XValueObject(name='X')
-    vo2 = XValueObject(name='X')
-    vo3 = YValueObject(name='X', age=3)
+        vo1 = XValueObject(name="X")
+        vo2 = XValueObject(name="X")
+        vo3 = YValueObject(name="X", age=3)
 
-    self.assertEqual(vo1, vo2)
-    self.assertEqual(vo2, vo1)
-    self.assertNotEqual(vo2, vo3)
-    self.assertNotEqual(vo3, vo2)
+        self.assertEqual(vo1, vo2)
+        self.assertEqual(vo2, vo1)
+        self.assertNotEqual(vo2, vo3)
+        self.assertNotEqual(vo3, vo2)
 
-    self.assertTrue(vo1.SameValueAs(vo2))
-    self.assertFalse(vo2.SameValueAs(vo3))
+        self.assertTrue(vo1.SameValueAs(vo2))
+        self.assertFalse(vo2.SameValueAs(vo3))

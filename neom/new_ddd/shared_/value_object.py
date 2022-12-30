@@ -37,22 +37,22 @@ from typing import Generic, TypeVar
 
 from .stuff import Stuff
 
-__all__ = ['ValueObject']
+__all__ = ["ValueObject"]
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 class ValueObject(Stuff, Generic[T]):
-  """A class describing domain value objects."""
+    """A class describing domain value objects."""
 
-  @abstractmethod
-  def SameValueAs(self, other: T) -> bool:
-    """Value objects compare by member values (don't have identity).
-    param other The other value object.
-    return ``true`` if the given value object's and this value object's
-    members are the same."""
+    @abstractmethod
+    def SameValueAs(self, other: T) -> bool:
+        """Value objects compare by member values (don't have identity).
+        param other The other value object.
+        return ``true`` if the given value object's and this value object's
+        members are the same."""
 
-  @abstractmethod
-  def Copy(self) -> T:
-    """Value objects can be freely copied.
-    return A safe, deep copy of this value object."""
+    @abstractmethod
+    def Copy(self) -> T:
+        """Value objects can be freely copied.
+        return A safe, deep copy of this value object."""

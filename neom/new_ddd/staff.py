@@ -33,91 +33,91 @@ Common used in entities or value objects."""
 from __future__ import annotations
 
 import re
-from typing import Final, Generic, Optional, Type, TypeVar
+from typing import Generic, Type, TypeVar
 
-from .shared_.value_object_support import ValueObjectSupport
 from .shared_.stuff import Field
+from .shared_.value_object_support import ValueObjectSupport
 
 
 class Phone(ValueObjectSupport):
-  """Compose phone."""
+    """Compose phone."""
 
-  country: Field[int]
-  area: Field[int]
-  number: Field[int]
+    country: Field[int]
+    area: Field[int]
+    number: Field[int]
 
 
 class Mobile(Phone):
-  """Mobile number as integer."""
+    """Mobile number as integer."""
 
-  REGEX = r'^\(\+(\d{2})\) (\d{3}(?:-\d{3}){2})$'
+    REGEX = r"^\(\+(\d{2})\) (\d{3}(?:-\d{3}){2})$"
 
-  def __str__(self):
-    part1 = int(self.number / 10**6)
-    part2 = int((self.number % 10**6) / 10**3)
-    part3 = int(self.number % 10**3)
-    return f'(+{self.country}) {part1}-{part2}-{part3}'
+    def __str__(self):
+        part1 = int(self.number / 10**6)
+        part2 = int((self.number % 10**6) / 10**3)
+        part3 = int(self.number % 10**3)
+        return f"(+{self.country}) {part1}-{part2}-{part3}"
 
-  @staticmethod
-  def Make(fmt: str) -> Mobile:
-    """Make from string format number."""
-    match = re.match(Mobile.REGEX, fmt)
-    if not match:
-      raise ValueError(
-        f'Invalid mobile phone {fmt}. User (+xx) xxx-xxx-xxx'
-      )
+    @staticmethod
+    def Make(fmt: str) -> Mobile:
+        """Make from string format number."""
+        match = re.match(Mobile.REGEX, fmt)
+        if not match:
+            raise ValueError(
+                f"Invalid mobile phone {fmt}. User (+xx) xxx-xxx-xxx"
+            )
 
-    groups = match.groups()
-    country = int(groups[0])
-    area = None
-    number = int(groups[1].replace('-', ''))
+        groups = match.groups()
+        country = int(groups[0])
+        area = None
+        number = int(groups[1].replace("-", ""))
 
-    return Mobile(country=country, area=area, number=number)
+        return Mobile(country=country, area=area, number=number)
 
 
 class Email(ValueObjectSupport):
-  """Email parsed."""
+    """Email parsed."""
 
-  address: Field[str]
+    address: Field[str]
 
-  REGEX = r'^\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b$'
+    REGEX = r"^\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b$"
 
-  def Validate(self):
-    """Validate address regex."""
-    if not re.match(self.REGEX, self.address):
-      raise ValueError(f'Invalid email address format {self.address}')
+    def Validate(self):
+        """Validate address regex."""
+        if not re.match(self.REGEX, self.address):
+            raise ValueError(f"Invalid email address format {self.address}")
 
-  def __str__(self):
-    return self.address
+    def __str__(self):
+        return self.address
 
 
-K = TypeVar('K')
+K = TypeVar("K")
 
 
 # NEXT-TODO: Use only ValueObject
 class Key(ValueObjectSupport, Generic[K]):
-  """Entity key."""
+    """Entity key."""
 
-  k: Field[K]
+    k: Field[K]
 
-  def __hash__(self) -> int:
-    return hash(self.k)
+    def __hash__(self) -> int:
+        return hash(self.k)
 
-  def __repr__(self):
-    return f'Key<{self.k}: {K}={K}>'
+    def __repr__(self):
+        return f"Key<{self.k}: {K}={K}>"
 
-  def _keyType(self) -> Type[K]:
-    """key type."""
-    return self.__orig_class__[0]
+    def _keyType(self) -> Type[K]:
+        """key type."""
+        return self.__orig_class__[0]
 
-  @classmethod
-  def Next(cls):
-    """Generate next valid key."""
-    print(cls(0))
+    @classmethod
+    def Next(cls):
+        """Generate next valid key."""
+        print(cls(0))
 
-  # NEXT-TODO: @_idcache
-  def __class_getitem__(self, k: K):
-    return Key
+    # NEXT-TODO: @_idcache
+    def __class_getitem__(self, k: K):
+        return Key
 
 
 IntKey = Key[int]

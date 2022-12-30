@@ -32,53 +32,53 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import ForwardRef
 from unittest import TestCase
 
-from neom.new_ddd.shared import Stuff, Field
+from neom.new_ddd.shared import Field, Stuff
 
 
 class StuffDeclarationTestCase(TestCase):
-  """Stuff declaration test case."""
+    """Stuff declaration test case."""
 
-  def test_definition(self):
-    """Test most common stuff definition."""
+    def test_definition(self):
+        """Test most common stuff definition."""
 
-    class Person(Stuff):
-      """Dummy."""
-      name: Field[str]
-      age: Field[int]
-      birth: Field[datetime]
+        class Person(Stuff):
+            """Dummy."""
 
-    name = 'Bruce Banner'
-    age = 3
-    birth = datetime(2000, 10, 1)
+            name: Field[str]
+            age: Field[int]
+            birth: Field[datetime]
 
-    person = Person(name=name, age=age, birth=birth)
+        name = "Bruce Banner"
+        age = 3
+        birth = datetime(2000, 10, 1)
 
-    self.assertIsInstance(person, Person)
-    self.assertEqual(person.name, name)
-    self.assertEqual(person.age, age)
-    self.assertEqual(person.birth, birth)
+        person = Person(name=name, age=age, birth=birth)
 
-  def test_custom_init(self):
-    """Test concrete stuff with custom init."""
+        self.assertIsInstance(person, Person)
+        self.assertEqual(person.name, name)
+        self.assertEqual(person.age, age)
+        self.assertEqual(person.birth, birth)
 
-    class Person(Stuff):
-      """Dummy."""
-      name: Field[str]
-      age: Field[int]
-      birth: Field[datetime]
+    def test_custom_init(self):
+        """Test concrete stuff with custom init."""
 
-      def __init__(self, name: str):
-        self.name = name
-        super().__init__(age=3)
-        self.birth = datetime(2000, 10, 1)
+        class Person(Stuff):
+            """Dummy."""
 
-    person = Person(name='Bruce Banner')
+            name: Field[str]
+            age: Field[int]
+            birth: Field[datetime]
 
-    self.assertIsInstance(person, Person)
-    self.assertEqual(person.name, 'Bruce Banner')
-    self.assertEqual(person.age, 3)
-    self.assertEqual(person.birth, datetime(2000, 10, 1))
+            def __init__(self, name: str):
+                self.name = name
+                super().__init__(age=3)
+                self.birth = datetime(2000, 10, 1)
 
+        person = Person(name="Bruce Banner")
+
+        self.assertIsInstance(person, Person)
+        self.assertEqual(person.name, "Bruce Banner")
+        self.assertEqual(person.age, 3)
+        self.assertEqual(person.birth, datetime(2000, 10, 1))

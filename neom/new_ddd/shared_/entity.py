@@ -38,22 +38,24 @@ from typing import Generic, TypeVar
 
 from .stuff import Field, Stuff
 
-__all__ = ('Entity',)
+__all__ = ("Entity",)
 
-T = TypeVar('T')
-ID = TypeVar('ID', bound=Field)
+T = TypeVar("T")
+ID = TypeVar("ID", bound=Field)
 
 
 class Entity(Stuff, Generic[T, ID]):
-  """A class describing domain entity."""
+    """A class describing domain entity."""
 
-  @abstractmethod
-  def Identity(self) -> ID:
-    """Entities have an identity. Returns identity of this entity."""
+    @abstractmethod
+    def Identity(self) -> ID:
+        """Entities have an identity. Returns identity of this entity."""
 
-  @abstractmethod
-  def SameIdentityAs(self, other: T) -> bool:
-    """Entities compare by identity, not by attributes.
-    param(other) the other entity.
-    Returns true when identities are the same, regardles of other attributes.
-    """
+    @abstractmethod
+    def SameIdentityAs(self, other: T) -> bool:
+        """Entities compare by identity, not by attributes.
+        param(other) the other entity.
+
+        Returns true when identities are the same,
+        regardles of other attributes.
+        """

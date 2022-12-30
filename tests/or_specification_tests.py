@@ -40,19 +40,18 @@ from .spec_common.true_spec import TrueSpec
 
 
 class OrSpecificationTestCase(TestCase):
+    def test_or_is_satisfied_by(self):
+        trueSpec = TrueSpec()
+        falseSpec = FalseSpec()
 
-  def test_or_is_satisfied_by(self):
-    trueSpec = TrueSpec()
-    falseSpec = FalseSpec()
+        orSpecification = OrSpecification[object](trueSpec, trueSpec)
+        self.assertTrue(orSpecification.IsSatisfiedBy(object()))
 
-    orSpecification = OrSpecification[object](trueSpec, trueSpec)
-    self.assertTrue(orSpecification.IsSatisfiedBy(object()))
+        orSpecification = OrSpecification[object](falseSpec, trueSpec)
+        self.assertTrue(orSpecification.IsSatisfiedBy(object()))
 
-    orSpecification = OrSpecification[object](falseSpec, trueSpec)
-    self.assertTrue(orSpecification.IsSatisfiedBy(object()))
+        orSpecification = OrSpecification[object](trueSpec, falseSpec)
+        self.assertTrue(orSpecification.IsSatisfiedBy(object()))
 
-    orSpecification = OrSpecification[object](trueSpec, falseSpec)
-    self.assertTrue(orSpecification.IsSatisfiedBy(object()))
-
-    orSpecification = OrSpecification[object](falseSpec, falseSpec)
-    self.assertFalse(orSpecification.IsSatisfiedBy(object()))
+        orSpecification = OrSpecification[object](falseSpec, falseSpec)
+        self.assertFalse(orSpecification.IsSatisfiedBy(object()))

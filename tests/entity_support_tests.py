@@ -38,42 +38,50 @@ from neom.new_ddd.shared import EntitySupport, Identity
 
 
 class EntitySupportTestCase(TestCase):
-  """EntitySupport test case."""
+    """EntitySupport test case."""
 
-  def test_no_identity(self):
-    entity = self.NoIdentityEntity()
-    with self.assertRaisesRegex(TypeError, 'Must have a unique identity field'):
-      entity.Identity()
+    def test_no_identity(self):
+        entity = self.NoIdentityEntity()
+        with self.assertRaisesRegex(
+            TypeError, "Must have a unique identity field"
+        ):
+            entity.Identity()
 
-  def test_two_identity(self):
-    entity = self.TwoIdentityEntity(name1='Bruce Banner', name2='Bruce Banner')
-    with self.assertRaisesRegex(TypeError, 'Only one field can be an identity'):
-      entity.Identity()
+    def test_two_identity(self):
+        entity = self.TwoIdentityEntity(
+            name1="Bruce Banner", name2="Bruce Banner"
+        )
+        with self.assertRaisesRegex(
+            TypeError, "Only one field can be an identity"
+        ):
+            entity.Identity()
 
-  def test_ok_identity(self):
-    entity = self.IdentityEntity(name='Bruce Banner')
-    self.assertEqual('Bruce Banner', entity.Identity())
+    def test_ok_identity(self):
+        entity = self.IdentityEntity(name="Bruce Banner")
+        self.assertEqual("Bruce Banner", entity.Identity())
 
-  def test_same_identity(self):
-    e1 = self.IdentityEntity(name='Bruce Banner')
-    e2 = self.IdentityEntity(name='Bruce Banner')
-    e3 = self.IdentityEntity(name='Bruce Wayne')
+    def test_same_identity(self):
+        e1 = self.IdentityEntity(name="Bruce Banner")
+        e2 = self.IdentityEntity(name="Bruce Banner")
+        e3 = self.IdentityEntity(name="Bruce Wayne")
 
-    self.assertTrue(e1.SameIdentityAs(e2))
-    self.assertFalse(e2.SameIdentityAs(e3))
+        self.assertTrue(e1.SameIdentityAs(e2))
+        self.assertFalse(e2.SameIdentityAs(e3))
 
-    self.assertEqual(e1, e2)
-    self.assertNotEqual(e2, e3)
+        self.assertEqual(e1, e2)
+        self.assertNotEqual(e2, e3)
 
-    self.assertEqual(hash(e1), hash(e2))
-    self.assertNotEqual(hash(e2), hash(e3))
+        self.assertEqual(hash(e1), hash(e2))
+        self.assertNotEqual(hash(e2), hash(e3))
 
-  class NoIdentityEntity(EntitySupport[ForwardRef('NoIdentityEntity'), str]):
-    pass
+    class NoIdentityEntity(EntitySupport[ForwardRef("NoIdentityEntity"), str]):
+        pass
 
-  class IdentityEntity(EntitySupport[ForwardRef('IdentityEntity'), str]):
-    name: Identity[str]
+    class IdentityEntity(EntitySupport[ForwardRef("IdentityEntity"), str]):
+        name: Identity[str]
 
-  class TwoIdentityEntity(EntitySupport[ForwardRef('TwoIdentityEntity'), str]):
-    name1: Identity[str]
-    name2: Identity[str]
+    class TwoIdentityEntity(
+        EntitySupport[ForwardRef("TwoIdentityEntity"), str]
+    ):
+        name1: Identity[str]
+        name2: Identity[str]

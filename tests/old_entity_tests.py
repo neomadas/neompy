@@ -39,17 +39,17 @@ from neom.lib.enum import IntEnum
 
 
 class IntEnumTestCase(TestCase):
-  class Colors(IntEnum):
-    RED = 0
-    GREEN = 1
-    BLUE = 2
-    YELLOW = 3
+    class Colors(IntEnum):
+        RED = 0
+        GREEN = 1
+        BLUE = 2
+        YELLOW = 3
 
-  def test_integer_choices_classname(self):
-    integerChoices = self.Colors.ToIntegerChoices()
-    self.assertEqual(integerChoices.__name__, 'ColorsChoices')
+    def test_integer_choices_classname(self):
+        integerChoices = self.Colors.ToIntegerChoices()
+        self.assertEqual(integerChoices.__name__, "ColorsChoices")
 
-  def test_is_type_IntegerChoices(self):
-    self.assertTrue(
-      issubclass(self.Colors.ToIntegerChoices(), IntegerChoices)
-    )
+    def test_is_type_IntegerChoices(self):
+        self.assertTrue(
+            issubclass(self.Colors.ToIntegerChoices(), IntegerChoices)
+        )
