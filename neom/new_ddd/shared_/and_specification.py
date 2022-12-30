@@ -37,21 +37,21 @@ from typing import Final, TypeVar
 from .abstract_specification import AbstractSpecification
 from .specification import Specification
 
-__all__ = ('AndSpecification',)
+__all__ = ("AndSpecification",)
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 class AndSpecification(AbstractSpecification[T]):
-  """AND specification creates a new specifcation that is the AND
-  of two another specifications."""
+    """AND specification creates a new specifcation that is the AND
+    of two another specifications."""
 
-  def __init__(self,
-               spec1: Final[Specification[T]],
-               spec2: Final[Specification[T]]):
-    """New AND specification based on two another spec."""
-    self.spec1 = spec1
-    self.spec2 = spec2
+    def __init__(
+        self, spec1: Final[Specification[T]], spec2: Final[Specification[T]]
+    ):
+        """New AND specification based on two another spec."""
+        self.spec1 = spec1
+        self.spec2 = spec2
 
-  def IsSatisfiedBy(self, t: T) -> bool:
-    return self.spec1.IsSatisfiedBy(t) and self.spec2.IsSatisfiedBy(t)
+    def IsSatisfiedBy(self, t: T) -> bool:
+        return self.spec1.IsSatisfiedBy(t) and self.spec2.IsSatisfiedBy(t)

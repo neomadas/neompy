@@ -40,130 +40,144 @@ from neom.new_ddd.shared import Field, ValueObject
 
 
 class ValueObjectDeclarationTestCase(TestCase):
-  """ValueObject declaration test case."""
+    """ValueObject declaration test case."""
 
-  def test_primitives(self):
-    """Test most common value object definition."""
+    def test_primitives(self):
+        """Test most common value object definition."""
 
-    class Person(ValueObject[ForwardRef('Person')]):
-      """Dummy."""
-      name: Field[str]
-      age: Field[int]
-      birth: Field[datetime]
+        class Person(ValueObject[ForwardRef("Person")]):
+            """Dummy."""
 
-      def SameValueAs(self, other: Person) -> bool:
-        return (self.name == other.name and self.age ==
-                other.age and self.birth == other.birth)
+            name: Field[str]
+            age: Field[int]
+            birth: Field[datetime]
 
-      def Copy(self) -> ForwardRef('Person'):
-        return Person(name=self.name, age=self.age, birth=self.birth)
+            def SameValueAs(self, other: Person) -> bool:
+                return (
+                    self.name == other.name
+                    and self.age == other.age
+                    and self.birth == other.birth
+                )
 
-    person = Person(name='Bruce Wayne', age=9, birth=datetime(2010, 1, 2))
+            def Copy(self) -> ForwardRef("Person"):
+                return Person(name=self.name, age=self.age, birth=self.birth)
 
-    self.assertIsInstance(person, Person)
-    self.assertEqual(person.name, 'Bruce Wayne')
-    self.assertEqual(person.age, 9)
-    self.assertEqual(person.birth, datetime(2010, 1, 2))
+        person = Person(name="Bruce Wayne", age=9, birth=datetime(2010, 1, 2))
 
-  def test_inheritance(self):
-    """Test value object inheritance."""
+        self.assertIsInstance(person, Person)
+        self.assertEqual(person.name, "Bruce Wayne")
+        self.assertEqual(person.age, 9)
+        self.assertEqual(person.birth, datetime(2010, 1, 2))
 
-    class PersonalInfo(ValueObject):
-      """Dummy."""
-      name: Field[str]
-      age: Field[int]
+    def test_inheritance(self):
+        """Test value object inheritance."""
 
-      def SameValueAs(self, other: PersonalInfo) -> bool:
-        return self.name == other.name and self.age == other.age
+        class PersonalInfo(ValueObject):
+            """Dummy."""
 
-      def Copy(self) -> ForwardRef('PersonalInfo'):
-        return Person(name=self.name, age=self.age)
+            name: Field[str]
+            age: Field[int]
 
-    class Person(PersonalInfo):
-      """Dummy."""
-      birth: Field[datetime]
+            def SameValueAs(self, other: PersonalInfo) -> bool:
+                return self.name == other.name and self.age == other.age
 
-      def SameValueAs(self, other: Person) -> bool:
-        return (
-          super().SameValueAs(
-            cast(
-              PersonalInfo,
-              other)) and self.birth == other.birth)
+            def Copy(self) -> ForwardRef("PersonalInfo"):
+                return Person(name=self.name, age=self.age)
 
-      def Copy(self) -> ForwardRef('Person'):
-        return Person(name=self.name, age=self.age, birth=self.birth)
+        class Person(PersonalInfo):
+            """Dummy."""
 
-    person = Person(name='Bruce Wayne', age=9, birth=datetime(2010, 1, 2))
+            birth: Field[datetime]
 
-    self.assertIsInstance(person, Person)
-    self.assertEqual(person.name, 'Bruce Wayne')
-    self.assertEqual(person.age, 9)
-    self.assertEqual(person.birth, datetime(2010, 1, 2))
+            def SameValueAs(self, other: Person) -> bool:
+                return (
+                    super().SameValueAs(cast(PersonalInfo, other))
+                    and self.birth == other.birth
+                )
+
+            def Copy(self) -> ForwardRef("Person"):
+                return Person(name=self.name, age=self.age, birth=self.birth)
+
+        person = Person(name="Bruce Wayne", age=9, birth=datetime(2010, 1, 2))
+
+        self.assertIsInstance(person, Person)
+        self.assertEqual(person.name, "Bruce Wayne")
+        self.assertEqual(person.age, 9)
+        self.assertEqual(person.birth, datetime(2010, 1, 2))
 
 
 class ValueObjectMethodsTestCase(TestCase):
-  """ValueObject methods test case."""
+    """ValueObject methods test case."""
 
-  def setUp(self):
-    class Person(ValueObject[ForwardRef('Person')]):
-      """Dummy."""
-      name: Field[str]
-      age: Field[int]
-      birth: Field[datetime]
+    def setUp(self):
+        class Person(ValueObject[ForwardRef("Person")]):
+            """Dummy."""
 
-      def SameValueAs(self, other: Person) -> bool:
-        return (self.name == other.name and self.age ==
-                other.age and self.birth == other.birth)
+            name: Field[str]
+            age: Field[int]
+            birth: Field[datetime]
 
-      def Copy(self) -> ForwardRef('Person'):
-        return deepcopy(self)
-    self.person = Person
+            def SameValueAs(self, other: Person) -> bool:
+                return (
+                    self.name == other.name
+                    and self.age == other.age
+                    and self.birth == other.birth
+                )
 
-  def test_same_value_as(self):
-    """Test SameValueAs method."""
-    p1 = self.person(name='Bruce Wayne', age=9, birth=datetime(2010, 1, 2))
-    p2 = self.person(name='Bruce Wayne', age=9, birth=datetime(2010, 1, 2))
-    self.assertTrue(p1.SameValueAs(p2))
+            def Copy(self) -> ForwardRef("Person"):
+                return deepcopy(self)
 
-  def test_copy(self):
-    """Test Copy method."""
-    p1 = self.person(name='Bruce Wayne', age=9, birth=datetime(2010, 1, 2))
-    p2 = p1.Copy()
+        self.person = Person
 
-    # TODO: improve this test to verify deep copy
+    def test_same_value_as(self):
+        """Test SameValueAs method."""
+        p1 = self.person(name="Bruce Wayne", age=9, birth=datetime(2010, 1, 2))
+        p2 = self.person(name="Bruce Wayne", age=9, birth=datetime(2010, 1, 2))
+        self.assertTrue(p1.SameValueAs(p2))
 
-    self.assertIs(p1.name, p2.name)
-    self.assertEqual(p1.name, p2.name)
+    def test_copy(self):
+        """Test Copy method."""
+        p1 = self.person(name="Bruce Wayne", age=9, birth=datetime(2010, 1, 2))
+        p2 = p1.Copy()
 
-    self.assertIs(p1.age, p2.age)
-    self.assertEqual(p1.age, p2.age)
+        # TODO: improve this test to verify deep copy
 
-    self.assertIsNot(p1.birth, p2.birth)
-    self.assertEqual(p1.birth, p2.birth)
+        self.assertIs(p1.name, p2.name)
+        self.assertEqual(p1.name, p2.name)
+
+        self.assertIs(p1.age, p2.age)
+        self.assertEqual(p1.age, p2.age)
+
+        self.assertIsNot(p1.birth, p2.birth)
+        self.assertEqual(p1.birth, p2.birth)
 
 
 class ValueObjectBackCompatibilityTestCase(TestCase):
-  """ValueObject back compatibility test case."""
+    """ValueObject back compatibility test case."""
 
-  def test_auto_fields(self):
-    """Test SameValueAs method."""
+    def test_auto_fields(self):
+        """Test SameValueAs method."""
 
-    class Person(ValueObject[ForwardRef('Person')]):
-      """Dummy."""
-      name: str
-      age: int
-      birth: datetime
+        class Person(ValueObject[ForwardRef("Person")]):
+            """Dummy."""
 
-      def SameValueAs(self, other: Person) -> bool:
-        return (self.name == other.name and self.age ==
-                other.age and self.birth == other.birth)
+            name: str
+            age: int
+            birth: datetime
 
-      def Copy(self) -> ForwardRef('Person'):
-        return Person(name=self.name, age=self.age, birth=self.birth)
+            def SameValueAs(self, other: Person) -> bool:
+                return (
+                    self.name == other.name
+                    and self.age == other.age
+                    and self.birth == other.birth
+                )
 
-    person = Person(name='Bruce Wayne', age=9, birth=datetime(2010, 1, 2))
+            def Copy(self) -> ForwardRef("Person"):
+                return Person(name=self.name, age=self.age, birth=self.birth)
 
-    self.assertIsInstance(person, Person)
-    self.assertEqual(person.name, 'Bruce Wayne')
-    self.assertEqual(person.age, 9)
-    self.assertEqual(person.birth, datetime(2010, 1, 2))
+        person = Person(name="Bruce Wayne", age=9, birth=datetime(2010, 1, 2))
+
+        self.assertIsInstance(person, Person)
+        self.assertEqual(person.name, "Bruce Wayne")
+        self.assertEqual(person.age, 9)
+        self.assertEqual(person.birth, datetime(2010, 1, 2))

@@ -34,14 +34,14 @@ types defined in low level modules in"""
 
 
 __all__ = [
-  'Error',
-  'BadMemberError',
+    "Error",
+    "BadMemberError",
 ]
 
 
 class Error(Exception):
-  """Base datastore error type."""
+    """Base datastore error type."""
 
 
 class BadMemberError(Error):
-  """Indicates a member value or filter value is invalid."""
+    """Indicates a member value or filter value is invalid."""

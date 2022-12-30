@@ -33,9 +33,9 @@ from __future__ import annotations
 
 from neom.new_ddd.shared import AbstractSpecification
 
-__all__ = ('TrueSpec',)
+__all__ = ("TrueSpec",)
 
 
 class TrueSpec(AbstractSpecification[object]):
-  def IsSatisfiedBy(self, t: object) -> bool:
-    return True
+    def IsSatisfiedBy(self, t: object) -> bool:
+        return True

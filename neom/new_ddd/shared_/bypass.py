@@ -31,46 +31,46 @@
 
 
 class Service:  # pylint:disable=too-few-public-methods
-  """TODO: Domain service declaration."""
+    """TODO: Domain service declaration."""
 
 
 class Repository:  # pylint:disable=too-few-public-methods
-  """TODO: Domain model entity repository."""
+    """TODO: Domain model entity repository."""
 
 
 class QuerySet:  # pylint:disable=too-few-public-methods
-  """TODO: Domain model query set application."""
+    """TODO: Domain model query set application."""
 
 
 class Error(Exception):
-  """DDD Errors"""
+    """DDD Errors"""
 
 
 class DomainError(Error):
-  """Entities, repositories and services base error for user cases.
-  This exceptions does not break the workflow."""
+    """Entities, repositories and services base error for user cases.
+    This exceptions does not break the workflow."""
 
 
 class NoIdentityError(DomainError):
-  """Notify the use"""
+    """Notify the use"""
 
-  def __init__(self, cls):
-    super().__init__(cls)
-    self._cls = cls
+    def __init__(self, cls):
+        super().__init__(cls)
+        self._cls = cls
 
-  def __str__(self):
-    return f'{self._cls.__qualname__} without identity'
+    def __str__(self):
+        return f"{self._cls.__qualname__} without identity"
 
 
 class RepositoryError(DomainError):
-  """Find, Store, Delete, Remove errors"""
+    """Find, Store, Delete, Remove errors"""
 
 
 class ServiceError(DomainError):
-  """Service logic error."""
+    """Service logic error."""
 
 
 class NotFoundError(RepositoryError):
-  """Raised when Repository.Find doest not foun.
-  Connection and transaction errors not included.
-  """
+    """Raised when Repository.Find doest not foun.
+    Connection and transaction errors not included.
+    """

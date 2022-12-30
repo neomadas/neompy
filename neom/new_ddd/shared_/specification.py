@@ -35,31 +35,31 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Generic, TypeVar
 
-__all__ = ('Specification',)
+__all__ = ("Specification",)
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 class Specification(ABC, Generic[T]):
-  """Specification interface.
-  AbstractSpecification is the base for creating specifications and only
-  the method ``IsSatisfiedBy(object)`` must be implemented.
-  """
+    """Specification interface.
+    AbstractSpecification is the base for creating specifications and only
+    the method ``IsSatisfiedBy(object)`` must be implemented.
+    """
 
-  @abstractmethod
-  def IsSatisfiedBy(self, t: T) -> bool:
-    """Check if ``t`` is satisfied by the specification."""
+    @abstractmethod
+    def IsSatisfiedBy(self, t: T) -> bool:
+        """Check if ``t`` is satisfied by the specification."""
 
-  @abstractmethod
-  def And(self, specification: Specification[T]) -> Specification[T]:
-    """New specification that is AND operation of ``self`` specification
-    and another specification."""
+    @abstractmethod
+    def And(self, specification: Specification[T]) -> Specification[T]:
+        """New specification that is AND operation of ``self`` specification
+        and another specification."""
 
-  @abstractmethod
-  def Or(self, specification: Specification[T]) -> Specification[T]:
-    """New specification that is OR operation of ``self`` specification
-    and another specification."""
+    @abstractmethod
+    def Or(self, specification: Specification[T]) -> Specification[T]:
+        """New specification that is OR operation of ``self`` specification
+        and another specification."""
 
-  @abstractmethod
-  def Not(self, specification: Specification[T]) -> Specification[T]:
-    """New specification that is NOT operation of ``self`` specification."""
+    @abstractmethod
+    def Not(self, specification: Specification[T]) -> Specification[T]:
+        """New specification that is NOT operation of ``self`` specification."""

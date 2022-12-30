@@ -37,23 +37,25 @@ from typing import TypeVar, cast, final
 
 from .value_object import Stuff, ValueObject
 
-__all__ = ['ValueObjectSupport']
+__all__ = ["ValueObjectSupport"]
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 class ValueObjectSupport(ValueObject[T]):
-  """Base class for value objects."""
+    """Base class for value objects."""
 
-  def __eq__(self, other: T) -> bool:
-    return self.SameValueAs(other)
+    def __eq__(self, other: T) -> bool:
+        return self.SameValueAs(other)
 
-  @final
-  def SameValueAs(self, other: T) -> bool:
-    return (other
+    @final
+    def SameValueAs(self, other: T) -> bool:
+        return (
+            other
             and isinstance(other, type(self))
-            and self.ReflectionEquals(cast(Stuff, other)))
+            and self.ReflectionEquals(cast(Stuff, other))
+        )
 
-  @final
-  def Copy(self) -> T:
-    return deepcopy(self)
+    @final
+    def Copy(self) -> T:
+        return deepcopy(self)

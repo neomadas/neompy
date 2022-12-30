@@ -31,46 +31,45 @@ import subprocess
 from pathlib import Path
 
 from django.conf import settings
-from django.core.management.base import (BaseCommand, CommandError,
-                                         CommandParser)
+from django.core.management.base import BaseCommand, CommandError, CommandParser
 
 try:
-  import coverage
+    import coverage
 except ImportError as error:
-  raise CommandError('coverage package not installed') from error
+    raise CommandError("coverage package not installed") from error
 
 
 class Command(BaseCommand):
-  help = 'Run coverage tool.'
+    help = "Run coverage tool."
 
-  def add_arguments(self, parser: CommandParser):
-    parser.add_argument('test-module', help='Test module base')
+    def add_arguments(self, parser: CommandParser):
+        parser.add_argument("test-module", help="Test module base")
 
-  def handle(self, *args, **options):
-    basedir = Path(settings.BASE_DIR)
+    def handle(self, *args, **options):
+        basedir = Path(settings.BASE_DIR)
 
-    if not basedir.is_dir():
-      raise CommandError(f'Invalid project directory: {basedir}')
+        if not basedir.is_dir():
+            raise CommandError(f"Invalid project directory: {basedir}")
 
-    if not (basedir / 'manage.py').exists():
-      raise CommandError(f'No project directory: {basedir}')
+        if not (basedir / "manage.py").exists():
+            raise CommandError(f"No project directory: {basedir}")
 
-    testmodule = options['test-module']
-    try:
-      subprocess.run(
-        ' '.join(
-          (
-            'coverage',
-            'run',
-            '--source=.',
-            'manage.py',
-            'test',
-            testmodule,
-          )
-        ),
-        shell=True,
-        check=True,
-      )
-    except subprocess.CalledProcessError:
-      return
-    subprocess.run(['coverage', 'html'])
+        testmodule = options["test-module"]
+        try:
+            subprocess.run(
+                " ".join(
+                    (
+                        "coverage",
+                        "run",
+                        "--source=.",
+                        "manage.py",
+                        "test",
+                        testmodule,
+                    )
+                ),
+                shell=True,
+                check=True,
+            )
+        except subprocess.CalledProcessError:
+            raise CommandError(f"Coverage execution: {coverage.__version__}")
+        subprocess.run(["coverage", "html"])

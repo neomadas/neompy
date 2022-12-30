@@ -38,3 +38,14 @@ from .shared_.identity import Identity
 from .shared_.stuff import Field, Stuff
 from .shared_.value_object import ValueObject
 from .shared_.value_object_support import ValueObjectSupport
+
+__all__ = (
+    "AbstractSpecification",
+    "Entity",
+    "EntitySupport",
+    "Field",
+    "Identity",
+    "Stuff",
+    "ValueObject",
+    "ValueObjectSupport",
+)

@@ -29,20 +29,18 @@
 
 from pathlib import Path
 
-from django.core.management.base import (BaseCommand, CommandError,
-                                         CommandParser)
-
+from django.core.management.base import BaseCommand, CommandParser
 from pylint import run_pylint
 
 
 class Command(BaseCommand):
-  help = 'Run lint tool.'
+    help = "Run lint tool."
 
-  def add_arguments(self, parser: CommandParser):
-    parser.add_argument('sourcedir', help='Source directory')
+    def add_arguments(self, parser: CommandParser):
+        parser.add_argument("sourcedir", help="Source directory")
 
-  def handle(self, *args, **options):
-    basedir = Path(__file__)
-    sourcedir = options['sourcedir']
-    rcfile = basedir.parent.parent.parent / '.pylintrc'
-    run_pylint(('--rcfile', str(rcfile), sourcedir, '--disable', 'fixme'))
+    def handle(self, *args, **options):
+        basedir = Path(__file__)
+        sourcedir = options["sourcedir"]
+        rcfile = basedir.parent.parent.parent / ".pylintrc"
+        run_pylint(("--rcfile", str(rcfile), sourcedir, "--disable", "fixme"))

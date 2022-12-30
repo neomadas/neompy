@@ -38,42 +38,44 @@ from typing import Type, TypeVar
 from .entity import Entity
 from .identity import Identity
 
-__all__ = ('EntitySupport',)
+__all__ = ("EntitySupport",)
 
-T = TypeVar('T')
-ID = TypeVar('ID', bound=Identity)
+T = TypeVar("T")
+ID = TypeVar("ID", bound=Identity)
 
 
 class EntitySupport(Entity[T, ID]):
-  """EntitySupport."""
+    """EntitySupport."""
 
-  __slots__ = ()
+    __slots__ = ()
 
-  _identityField = None
+    _identityField = None
 
-  def Identity(self) -> ID:
-    if not self._identityField:
-      self._identityField = self._LazyIdentityDetermination()
-    return getattr(self, self._identityField.name)
+    def Identity(self) -> ID:
+        if not self._identityField:
+            self._identityField = self._LazyIdentityDetermination()
+        return getattr(self, self._identityField.name)
 
-  def SameIdentityAs(self, other: T) -> bool:
-    return other and self.Identity() == other.Identity()
+    def SameIdentityAs(self, other: T) -> bool:
+        return other and self.Identity() == other.Identity()
 
-  def __eq__(self, other: T) -> bool:
-    return (
-      self is other) or (
-      other and isinstance(other, type(self)) and self.SameIdentityAs(other))
+    def __eq__(self, other: T) -> bool:
+        return (self is other) or (
+            other
+            and isinstance(other, type(self))
+            and self.SameIdentityAs(other)
+        )
 
-  def __hash__(self) -> int:
-    return hash(self.Identity())
+    def __hash__(self) -> int:
+        return hash(self.Identity())
 
-  def _LazyIdentityDetermination(self) -> Type[ID]:
-    identityField = None
-    for field in self._fields.values():
-      if isinstance(field, Identity):
-        if identityField:
-          raise TypeError('Only one field can be an identity')
-        identityField = field
-    if not identityField:
-      raise TypeError('Must have a unique identity field')
-    return identityField
+    def _LazyIdentityDetermination(self) -> Type[ID]:
+        identityField = None
+        for field in self._fields.values():
+            if isinstance(field, Identity):
+                if identityField:
+                    raise TypeError("Only one field can be an identity")
+                identityField = field
+        if not identityField:
+            raise TypeError("Must have a unique identity field")
+        return identityField

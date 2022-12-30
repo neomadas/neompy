@@ -37,21 +37,21 @@ from typing import Final, TypeVar
 from .abstract_specification import AbstractSpecification
 from .specification import Specification
 
-__all__ = ('OrSpecification',)
+__all__ = ("OrSpecification",)
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 class OrSpecification(AbstractSpecification[T]):
-  """OR specification creates a new specifcation that is the OR
-  of two another specifications."""
+    """OR specification creates a new specifcation that is the OR
+    of two another specifications."""
 
-  def __init__(self,
-               spec1: Final[Specification[T]],
-               spec2: Final[Specification[T]]):
-    """New OR specification based on two another spec."""
-    self.spec1 = spec1
-    self.spec2 = spec2
+    def __init__(
+        self, spec1: Final[Specification[T]], spec2: Final[Specification[T]]
+    ):
+        """New OR specification based on two another spec."""
+        self.spec1 = spec1
+        self.spec2 = spec2
 
-  def IsSatisfiedBy(self, t: T) -> bool:
-    return self.spec1.IsSatisfiedBy(t) or self.spec2.IsSatisfiedBy(t)
+    def IsSatisfiedBy(self, t: T) -> bool:
+        return self.spec1.IsSatisfiedBy(t) or self.spec2.IsSatisfiedBy(t)
