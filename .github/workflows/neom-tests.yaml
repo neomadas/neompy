@@ -22,5 +22,8 @@ jobs:
       - name: Validate code
         run: pre-commit run --all-files
       - name: Test with unittest
+        run: python -m unittest tests/*.py
+      - name: Validate Coverage
         run: |
-          python -m unittest tests/*.py
+          coverage run -m unittest tests/*.py
+          coverage report -m --skip-covered --skip-empty --fail-under=93

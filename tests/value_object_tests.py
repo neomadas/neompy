@@ -68,6 +68,8 @@ class ValueObjectDeclarationTestCase(TestCase):
         self.assertEqual(person.name, "Bruce Wayne")
         self.assertEqual(person.age, 9)
         self.assertEqual(person.birth, datetime(2010, 1, 2))
+        self.assertTrue(person.SameValueAs(person))
+        self.assertTrue(person.SameValueAs(person.Copy()))
 
     def test_inheritance(self):
         """Test value object inheritance."""
@@ -82,7 +84,7 @@ class ValueObjectDeclarationTestCase(TestCase):
                 return self.name == other.name and self.age == other.age
 
             def Copy(self) -> ForwardRef("PersonalInfo"):
-                return Person(name=self.name, age=self.age)
+                return PersonalInfo(name=self.name, age=self.age)
 
         class Person(PersonalInfo):
             """Dummy."""
@@ -96,7 +98,12 @@ class ValueObjectDeclarationTestCase(TestCase):
                 )
 
             def Copy(self) -> ForwardRef("Person"):
-                return Person(name=self.name, age=self.age, birth=self.birth)
+                personalInfo = super().Copy()
+                return Person(
+                    name=personalInfo.name,
+                    age=personalInfo.age,
+                    birth=self.birth,
+                )
 
         person = Person(name="Bruce Wayne", age=9, birth=datetime(2010, 1, 2))
 
@@ -104,6 +111,8 @@ class ValueObjectDeclarationTestCase(TestCase):
         self.assertEqual(person.name, "Bruce Wayne")
         self.assertEqual(person.age, 9)
         self.assertEqual(person.birth, datetime(2010, 1, 2))
+        self.assertTrue(person.SameValueAs(person))
+        self.assertTrue(person.SameValueAs(person.Copy()))
 
 
 class ValueObjectMethodsTestCase(TestCase):
@@ -181,3 +190,5 @@ class ValueObjectBackCompatibilityTestCase(TestCase):
         self.assertEqual(person.name, "Bruce Wayne")
         self.assertEqual(person.age, 9)
         self.assertEqual(person.birth, datetime(2010, 1, 2))
+        self.assertTrue(person.SameValueAs(person))
+        self.assertTrue(person.SameValueAs(person.Copy()))
