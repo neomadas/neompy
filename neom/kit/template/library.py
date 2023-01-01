@@ -27,33 +27,63 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from django.template import Node
+import functools
+from inspect import getfullargspec, unwrap
+from typing import Any, Callable, Dict, List
+
+from django.template import Library, Node
 from django.template.base import Parser, Token
 from django.template.context import RequestContext
-
-from neom.kit.template.library import Library
-from neom.templatetags import neom_webtools as webtools
-
-register = Library()
+from django.template.library import parse_bits
 
 
-@register.tag
-def neom_md2_style(parser: Parser, token: Token):
-    return Md2StyleNode()
+class Library(Library):
+    def directtag(self, call):
+        (
+            args,
+            varargs,
+            varkw,
+            defaults,
+            kwonlyargs,
+            kwonlydefaults,
+            _,
+        ) = getfullargspec(unwrap(call))
+        call_name = call.__name__
+
+        @functools.wraps(call)
+        def compile_function(parser: Parser, token: Token):
+            bits = token.split_contents()[1:]
+            callargs, callkwargs = parse_bits(
+                parser,
+                bits,
+                args,
+                varargs,
+                varkw,
+                defaults,
+                kwonlyargs,
+                kwonlydefaults,
+                False,
+                call_name,
+            )
+            return DirectNode(call, callargs, callkwargs)
+
+        self.tag(call_name, compile_function)
+        return call
 
 
-@register.directtag
-def neom_md2_button_contained(label: str):
-    return (
-        "<button"
-        f' class="{webtools.keytoken("mdc-button")}'
-        f' {webtools.keytoken("mdc-button--raised")}"><span'
-        f' class="{webtools.keytoken("mdc-button__label")}">{label}'
-        "</span></button>"
-    )
+class DirectNode(Node):
+    def __init__(self, call: Callable, args: List[Any], kwargs: Dict[str, Any]):
+        self.call = call
+        self.args = args
+        self.kwargs = kwargs
 
-
-class Md2StyleNode(Node):
     def render(self, context: RequestContext):
-        template = context.template.engine.get_template("neom/kit/md2/web.css")
-        return f"<style>{template.render(context)}</style>"
+        args, kwargs = self.__ResolveArguments(context)
+        return self.call(*args, **kwargs)
+
+    def __ResolveArguments(self, context: RequestContext):
+        args = [arg.resolve(context) for arg in self.args]
+        kwargs = {
+            key: value.resolve(context) for key, value in self.kwargs.items()
+        }
+        return args, kwargs
