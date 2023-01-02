@@ -32,7 +32,14 @@ from django.template.base import Parser, Token
 from django.template.context import RequestContext
 
 from neom.kit.template.library import Library
-from neom.templatetags import neom_webtools as webtools
+from neom.templatetags.neom_webtools import keytoken as _kt
+
+__all__ = (
+    "neom_md2_button_contained",
+    "neom_md2_button_outlined",
+    "neom_md2_button_text",
+    "neom_md2_style",
+)
 
 register = Library()
 
@@ -43,13 +50,31 @@ def neom_md2_style(parser: Parser, token: Token):
 
 
 @register.directtag
+def neom_md2_button_text(label: str):
+    return (
+        f'<button class="{_kt("mdc-button")}">'
+        f'<span class="{_kt("mdc-button__ripple")}"></span>'
+        f'<span class="{_kt("mdc-button__label")}">{label}</span>'
+        "</button>"
+    )
+
+
+@register.directtag
+def neom_md2_button_outlined(label: str):
+    return (
+        f'<button class="{_kt("mdc-button")} {_kt("mdc-button--outlined")}">'
+        f'<span class="{_kt("mdc-button__ripple")}"></span>'
+        f'<span class="{_kt("mdc-button__label")}">{label}</span>'
+        "</button>"
+    )
+
+
+@register.directtag
 def neom_md2_button_contained(label: str):
     return (
-        "<button"
-        f' class="{webtools.keytoken("mdc-button")}'
-        f' {webtools.keytoken("mdc-button--raised")}"><span'
-        f' class="{webtools.keytoken("mdc-button__label")}">{label}'
-        "</span></button>"
+        f'<button class="{_kt("mdc-button")} {_kt("mdc-button--raised")}">'
+        f'<span class="{_kt("mdc-button__label")}">{label}</span>'
+        "</button>"
     )
 
 

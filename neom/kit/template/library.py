@@ -39,33 +39,20 @@ from django.template.library import parse_bits
 
 class Library(Library):
     def directtag(self, call):
-        (
-            args,
-            varargs,
-            varkw,
-            defaults,
-            kwonlyargs,
-            kwonlydefaults,
-            _,
-        ) = getfullargspec(unwrap(call))
+        argspec = getfullargspec(unwrap(call))[:-1]
         call_name = call.__name__
 
         @functools.wraps(call)
         def compile_function(parser: Parser, token: Token):
             bits = token.split_contents()[1:]
-            callargs, callkwargs = parse_bits(
+            args, kwargs = parse_bits(
                 parser,
                 bits,
-                args,
-                varargs,
-                varkw,
-                defaults,
-                kwonlyargs,
-                kwonlydefaults,
+                *argspec,
                 False,
                 call_name,
             )
-            return DirectNode(call, callargs, callkwargs)
+            return DirectNode(call, args, kwargs)
 
         self.tag(call_name, compile_function)
         return call
@@ -83,7 +70,5 @@ class DirectNode(Node):
 
     def __ResolveArguments(self, context: RequestContext):
         args = [arg.resolve(context) for arg in self.args]
-        kwargs = {
-            key: value.resolve(context) for key, value in self.kwargs.items()
-        }
+        kwargs = {k: v.resolve(context) for k, v in self.kwargs.items()}
         return args, kwargs
