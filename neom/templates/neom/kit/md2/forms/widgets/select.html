@@ -1,0 +1,47 @@
+{# Copyright Neomadas, Inc. All rights reserved. #}
+{% load neodash_webtools %}
+<div class="{% _kt 'mdc-select' %} {% _kt 'mdc-select--outlined' %}">
+  <div class="{% _kt 'mdc-select__anchor' %}" aria-labelledby="outlined-select-label">
+    <span class="{% _kt 'mdc-notched-outline' %}">
+      <span class="{% _kt 'mdc-notched-outline__leading' %}"></span>
+      <span class="{% _kt 'mdc-notched-outline__notch' %}">
+        <span id="outlined-select-label" class="{% _kt 'mdc-floating-label' %}">Pick a Food Group</span>
+      </span>
+      <span class="{% _kt 'mdc-notched-outline__trailing' %}"></span>
+    </span>
+    <span class="{% _kt 'mdc-select__selected-text-container' %}">
+      <span id="demo-selected-text" class="{% _kt 'mdc-select__selected-text' %}"></span>
+    </span>
+    <span class="{% _kt 'mdc-select__dropdown-icon' %}">
+      <svg
+          class="{% _kt 'mdc-select__dropdown-icon-graphic' %}"
+          viewBox="7 10 10 5" focusable="false">
+        <polygon
+            class="{% _kt 'mdc-select__dropdown-icon-inactive' %}"
+            stroke="none"
+            fill-rule="evenodd"
+            points="7 10 12 15 17 10">
+        </polygon>
+        <polygon
+            class="{% _kt 'mdc-select__dropdown-icon-active' %}"
+            stroke="none"
+            fill-rule="evenodd"
+            points="7 15 12 10 17 15">
+        </polygon>
+      </svg>
+    </span>
+  </div>
+  <div class="{% _kt 'mdc-select__menu' %} {% _kt 'mdc-menu' %} {% _kt 'mdc-menu-surface' %} {% _kt 'mdc-menu-surface--fullwidth' %}">
+    <ul class="{% _kt 'mdc-list' %}" role="menu" aria-hidden="true" aria-orientation="vertical" tabindex="-1">
+      <li class="{% _kt 'mdc-list-item' %}" role="menuitem">
+        <span class="{% _kt 'mdc-list-item__ripple' %}"></span>
+        <span class="{% _kt 'mdc-list-item__text' %}">Opción 1</span>
+      </li>
+      <li class="{% _kt 'mdc-list-item' %}" role="menuitem">
+        <span class="{% _kt 'mdc-list-item__ripple' %}"></span>
+        <span class="{% _kt 'mdc-list-item__text' %}">Opción 2</span>
+      </li>
+    </ul>
+  </div>
+</div>
+<script>new mdc.select.MDCSelect(document.querySelector(".{% _kt 'mdc-select' %}"));</script>
