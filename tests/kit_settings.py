@@ -27,50 +27,23 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import functools
-from inspect import getfullargspec, unwrap
-from typing import Any, Callable, Dict, List
+import django
 
-from django.template import Library, Node
-from django.template.base import Parser, Token
-from django.template.context import RequestContext
-from django.template.library import parse_bits
-
-__all__ = ["Library"]
+INSTALLED_APPS = [
+    "neom",
+]
 
 
-class Library(Library):
-    def directtag(self, call):
-        argspec = getfullargspec(unwrap(call))[:-1]
-        call_name = call.__name__
+TEMPLATES = [
+    {
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [],
+        "OPTIONS": {
+            "libraries": {"neom_md2": "neom.kit.md2.templatetags.neom_md2"}
+        },
+    },
+]
 
-        @functools.wraps(call)
-        def compile_function(parser: Parser, token: Token):
-            bits = token.split_contents()[1:]
-            args, kwargs = parse_bits(
-                parser,
-                bits,
-                *argspec,
-                False,
-                call_name,
-            )
-            return DirectNode(call, args, kwargs)
+USE_TZ = False
 
-        self.tag(call_name, compile_function)
-        return call
-
-
-class DirectNode(Node):
-    def __init__(self, call: Callable, args: List[Any], kwargs: Dict[str, Any]):
-        self.call = call
-        self.args = args
-        self.kwargs = kwargs
-
-    def render(self, context: RequestContext):
-        args, kwargs = self.__ResolveArguments(context)
-        return self.call(*args, **kwargs)
-
-    def __ResolveArguments(self, context: RequestContext):
-        args = [arg.resolve(context) for arg in self.args]
-        kwargs = {k: v.resolve(context) for k, v in self.kwargs.items()}
-        return args, kwargs
+django.setup()
