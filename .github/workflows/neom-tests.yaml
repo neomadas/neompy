@@ -21,9 +21,7 @@ jobs:
           pip install -e .
       - name: Validate code
         run: pre-commit run --all-files
-      - name: Test with unittest
-        run: python -m unittest tests/*.py
-      - name: Validate Coverage
+      - name: Test and coverage
         run: |
           coverage run -m unittest discover -stests -t. -p'*_tests.py'
           coverage report -m --skip-covered --skip-empty --fail-under=100
