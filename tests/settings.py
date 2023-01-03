@@ -27,22 +27,24 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from unittest import TestCase
-
-from .settings import Configure
-
-Configure()
+from django import setup
+from django.conf import settings
 
 
-class AppsTestCase(TestCase):
-    def test_ioc_wires_call(self):
-        from unittest.mock import MagicMock
-
-        from django.conf import settings
-
-        from neom import apps
-
-        config = apps.NeomConfig("neom", apps)
-        settings.NEOM_IOC_WIRES = MagicMock()
-        config.ready()
-        settings.NEOM_IOC_WIRES.assert_called()
+def Configure():
+    settings.configure(
+        INSTALLED_APPS=["neom"],
+        TEMPLATES=[
+            {
+                "BACKEND": "django.template.backends.django.DjangoTemplates",
+                "DIRS": ("neom/templates", "tests/templates"),
+                "OPTIONS": {
+                    "libraries": {
+                        "neom_md2": "neom.kit.md2.templatetags.neom_md2"
+                    }
+                },
+            },
+        ],
+        USE_TZ=False,
+    )
+    setup()

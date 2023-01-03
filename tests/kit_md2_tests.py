@@ -27,22 +27,18 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import os
 from html.parser import HTMLParser
 from unittest import TestCase
 
-import django
 from django import forms
 from django.db import models
+from django.template import Context, Template
+from django.template.engine import Engine
 
 from neom.kit.md2.forms import fields as md2_fields
 from neom.kit.md2.forms import models as md2_models
 from neom.kit.md2.forms import widgets as md2_widgets
 from neom.kit.md2.views.generic.edit import ImproperlyConfigured, UpdateView
-
-SETTINGS_ENVNAME = "DJANGO_SETTINGS_MODULE"
-os.environ[SETTINGS_ENVNAME] = "tests.kit_settings"
-django.setup()
 
 
 class ViewsGenericEditUpdateViewTestCase(TestCase):
@@ -181,11 +177,51 @@ class FormWidgetsTestCase(TestCase):
         self.assertIsNone(context["field"])
 
 
+class TagsTestCase(TestCase):
+    def test_style(self):
+        html = Template("{% load neom_md2 %}{% neom_md2_style %}").render(
+            Context()
+        )
+
+        class StyleParser(HTMLParser):
+            has_style = False
+
+            def handle_starttag(self, tag, attrs):
+                if tag == "style":
+                    self.has_style = True
+
+        parser = StyleParser()
+        parser.feed(html)
+
+        self.assertTrue(parser.has_style)
+
+    def test_buttons(self):
+        for kind in ("text", "outlined", "contained"):
+            html = Template(
+                f"{{% load neom_md2 %}}{{% neom_md2_button_{kind} 'foo' %}}"
+            ).render(Context())
+
+            class ButtonParser(HTMLParser):
+                has_button = False
+                label = ""
+
+                def handle_starttag(self, tag, attrs):
+                    if tag == "button":
+                        self.has_button = True
+
+                def handle_data(self, data):
+                    if data:
+                        self.label = data
+
+            parser = ButtonParser()
+            parser.feed(html)
+
+            self.assertTrue(parser.has_button)
+            self.assertEqual(parser.label, "foo")
+
+
 class TemplateLibraryTestCase(TestCase):
     def test_directtag(self):
-        from django.template import Context
-        from django.template.engine import Engine
-
         from neom.kit.template.library import Library
 
         library = Library()

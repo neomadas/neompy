@@ -29,20 +29,21 @@
 
 from unittest import TestCase
 
-from .settings import Configure
+from django.template import Context, Template
+from django.template.exceptions import TemplateSyntaxError
 
-Configure()
 
+class WebtoolsTestCase(TestCase):
+    def test_import(self):
+        html = Template("{% load neom %}{% neom_import 'dummy' %}").render(
+            Context()
+        )
+        self.assertTrue(html, "dummy")
 
-class AppsTestCase(TestCase):
-    def test_ioc_wires_call(self):
-        from unittest.mock import MagicMock
-
-        from django.conf import settings
-
-        from neom import apps
-
-        config = apps.NeomConfig("neom", apps)
-        settings.NEOM_IOC_WIRES = MagicMock()
-        config.ready()
-        settings.NEOM_IOC_WIRES.assert_called()
+    def test_import_error(self):
+        with self.assertRaises(TemplateSyntaxError) as cm:
+            Template("{% load neom %}{% neom_import %}").render(Context())
+        self.assertEqual(
+            str(cm.exception),
+            "neom_import tag takes at least one argument: the asset path",
+        )

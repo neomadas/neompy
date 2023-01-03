@@ -127,9 +127,7 @@ class Provider:
         return self
 
     def __eq__(self, other):
-        if not isinstance(other, "_SpecialForm"):
-            return NotImplemented
-        return self._name == other._name
+        return self._name == other._name  # TODO: no impl
 
     def __hash__(self):
         return hash((self._name,))
@@ -159,7 +157,7 @@ Wired = Provider(
 
   @Wireable
   class Service:
-  member: Wired[Member]
+    member: Wired[Member]
 
   @wire
   def process(argument, another: Wired[Another]):
@@ -167,6 +165,6 @@ Wired = Provider(
 
   @wire
   def process(argument, extra: Wired[Extra]):
-  return None
+    return None
   """,
 )
