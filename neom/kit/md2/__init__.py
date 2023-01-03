@@ -26,39 +26,3 @@
 # LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-import os
-from unittest import TestCase
-
-
-class TemplateLibraryTestCase(TestCase):
-
-    SETTINGS_ENVNAME = "DJANGO_SETTINGS_MODULE"
-
-    def setUp(self):
-        self.settings = os.environ.get(self.SETTINGS_ENVNAME, "")
-        os.environ[self.SETTINGS_ENVNAME] = "tests.kit_settings"
-
-    def tearDown(self):
-        os.environ[self.SETTINGS_ENVNAME] = self.settings
-
-    def test_directtag(self):
-        from django.template import Context
-        from django.template.engine import Engine
-
-        from neom.kit.template.library import Library
-
-        library = Library()
-
-        @library.directtag
-        def dummy(foo: str, bar: str = "bar"):
-            return f"{foo}-{bar}"
-
-        engine = Engine()
-        engine.template_libraries["test_library"] = library
-
-        html = engine.from_string(
-            "{% load test_library %}{% dummy 'foo' %}{% dummy 'oof' 'baz' %}"
-        ).render(Context())
-
-        self.assertEqual(html, "foo-baroof-baz")

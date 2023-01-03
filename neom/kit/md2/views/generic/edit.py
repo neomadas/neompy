@@ -30,41 +30,13 @@
 import django.views.generic.edit as edit_views
 from django.core.exceptions import ImproperlyConfigured
 from django.db.models import fields as model_fields
-from django.forms import fields as form_fields
 from django.forms import models as model_forms
 
+from neom.kit.md2.forms import fields as md2_fields
 from neom.kit.md2.forms import models as md2_model_forms
 from neom.kit.md2.forms import widgets as md2_widgets
 
-
-class AttachFieldMixin(form_fields.Field):
-    def get_bound_field(self, form, field_name):
-        boundfield = super().get_bound_field(form, field_name)
-        self.widget.field = boundfield
-        return boundfield
-
-
-class CharField(form_fields.CharField, AttachFieldMixin):
-    pass
-
-
-class TypedChoiceField(form_fields.TypedChoiceField, AttachFieldMixin):
-    pass
-
-
-def formfield_callback(field, **kwargs):
-    if isinstance(field, model_fields.CharField):
-        return CharField(**kwargs, widget=md2_widgets.TextInput)
-
-    if isinstance(field, model_fields.IntegerField):
-        if field.choices:
-            return TypedChoiceField(
-                choices=field.choices, **kwargs, widget=md2_widgets.Select
-            )
-        # else:
-        # return form_fields.IntegerField(...)
-
-    return field.formfield(**kwargs)
+__all__ = ["UpdateView"]
 
 
 class UpdateView(edit_views.UpdateView):
@@ -91,5 +63,20 @@ class UpdateView(edit_views.UpdateView):
                 model,
                 md2_model_forms.ModelForm,
                 fields=self.fields,
-                formfield_callback=formfield_callback,
+                formfield_callback=_formfield_callback,
             )
+
+
+def _formfield_callback(field, **kwargs):
+    if isinstance(field, model_fields.CharField):
+        return md2_fields.TextField(**kwargs, widget=md2_widgets.TextInput)
+
+    if isinstance(field, model_fields.IntegerField):
+        if field.choices:
+            return md2_fields.SelectField(
+                choices=field.choices, **kwargs, widget=md2_widgets.Select
+            )
+        # else:
+        # return form_fields.IntegerField(...)
+
+    return field.formfield(**kwargs)

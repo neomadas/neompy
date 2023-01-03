@@ -27,17 +27,12 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from django.forms import models as model_forms
-from django.forms import utils as util_forms
+from unittest import TestCase
 
-__all__ = ["ModelForm"]
-
-
-class Md2RenderableFormMixin(util_forms.RenderableMixin):
-    def as_md2(self):
-        """Render as material design 2 elements."""
-        return self.render(self.template_name_md2)
+from neom.new_ddd.shared_ import bypass
 
 
-class ModelForm(model_forms.ModelForm, Md2RenderableFormMixin):
-    template_name_md2 = "neom/kit/md2/forms/md2.html"
+class BypassTestCase(TestCase):
+    def test_no_identity_error(self):
+        error = bypass.NoIdentityError(object)
+        self.assertEqual(str(error), "object without identity")

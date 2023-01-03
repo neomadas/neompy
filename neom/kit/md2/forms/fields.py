@@ -27,17 +27,21 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from django.forms import models as model_forms
-from django.forms import utils as util_forms
+from django.forms import fields as form_fields
 
-__all__ = ["ModelForm"]
-
-
-class Md2RenderableFormMixin(util_forms.RenderableMixin):
-    def as_md2(self):
-        """Render as material design 2 elements."""
-        return self.render(self.template_name_md2)
+__all__ = ("TextField", "SelectField")
 
 
-class ModelForm(model_forms.ModelForm, Md2RenderableFormMixin):
-    template_name_md2 = "neom/kit/md2/forms/md2.html"
+class AttachFieldMixin(form_fields.Field):
+    def get_bound_field(self, form, field_name):
+        boundfield = super().get_bound_field(form, field_name)
+        self.widget.field = boundfield
+        return boundfield
+
+
+class TextField(form_fields.CharField, AttachFieldMixin):
+    pass
+
+
+class SelectField(form_fields.TypedChoiceField, AttachFieldMixin):
+    pass
