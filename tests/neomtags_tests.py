@@ -27,17 +27,23 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from django.forms import models as model_forms
-from django.forms import utils as util_forms
+from unittest import TestCase
 
-__all__ = ["ModelForm"]
-
-
-class Md2RenderableFormMixin(util_forms.RenderableMixin):
-    def as_md2(self):
-        """Render as material design 2 elements."""
-        return self.render(self.template_name_md2)
+from django.template import Context, Template
+from django.template.exceptions import TemplateSyntaxError
 
 
-class ModelForm(model_forms.ModelForm, Md2RenderableFormMixin):
-    template_name_md2 = "neom/kit/md2/forms/md2.html"
+class WebtoolsTestCase(TestCase):
+    def test_import(self):
+        html = Template("{% load neom %}{% neom_import 'dummy' %}").render(
+            Context()
+        )
+        self.assertTrue(html, "dummy")
+
+    def test_import_error(self):
+        with self.assertRaises(TemplateSyntaxError) as cm:
+            Template("{% load neom %}{% neom_import %}").render(Context())
+        self.assertEqual(
+            str(cm.exception),
+            "neom_import tag takes at least one argument: the asset path",
+        )

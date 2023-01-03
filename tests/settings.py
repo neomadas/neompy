@@ -27,17 +27,24 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from django.forms import models as model_forms
-from django.forms import utils as util_forms
-
-__all__ = ["ModelForm"]
+from django import setup
+from django.conf import settings
 
 
-class Md2RenderableFormMixin(util_forms.RenderableMixin):
-    def as_md2(self):
-        """Render as material design 2 elements."""
-        return self.render(self.template_name_md2)
-
-
-class ModelForm(model_forms.ModelForm, Md2RenderableFormMixin):
-    template_name_md2 = "neom/kit/md2/forms/md2.html"
+def Configure():
+    settings.configure(
+        INSTALLED_APPS=["neom"],
+        TEMPLATES=[
+            {
+                "BACKEND": "django.template.backends.django.DjangoTemplates",
+                "DIRS": ("neom/templates", "tests/templates"),
+                "OPTIONS": {
+                    "libraries": {
+                        "neom_md2": "neom.kit.md2.templatetags.neom_md2"
+                    }
+                },
+            },
+        ],
+        USE_TZ=False,
+    )
+    setup()

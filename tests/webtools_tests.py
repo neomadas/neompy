@@ -27,23 +27,20 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import django
+from unittest import TestCase
 
-INSTALLED_APPS = [
-    "neom",
-]
+from django.template import Context, Template
 
 
-TEMPLATES = [
-    {
-        "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
-        "OPTIONS": {
-            "libraries": {"neom_md2": "neom.kit.md2.templatetags.neom_md2"}
-        },
-    },
-]
+class WebtoolsTestCase(TestCase):
+    def test_kt(self):
+        html = Template(
+            "{% load neom_webtools %}{% _kt 'foo' %}{% _kt 'bar' %}"
+        ).render(Context())
+        self.assertTrue(html.isalpha())
 
-USE_TZ = False
+    def test_keytoken(self):
+        from neom.templatetags.neom_webtools import keytoken
 
-django.setup()
+        token = keytoken("foo")
+        self.assertTrue(token.isalpha())

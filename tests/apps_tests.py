@@ -27,17 +27,22 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from django.forms import models as model_forms
-from django.forms import utils as util_forms
+from unittest import TestCase
 
-__all__ = ["ModelForm"]
+from .settings import Configure
 
-
-class Md2RenderableFormMixin(util_forms.RenderableMixin):
-    def as_md2(self):
-        """Render as material design 2 elements."""
-        return self.render(self.template_name_md2)
+Configure()
 
 
-class ModelForm(model_forms.ModelForm, Md2RenderableFormMixin):
-    template_name_md2 = "neom/kit/md2/forms/md2.html"
+class AppsTestCase(TestCase):
+    def test_ioc_wires_call(self):
+        from unittest.mock import MagicMock
+
+        from django.conf import settings
+
+        from neom import apps
+
+        config = apps.NeomConfig("neom", apps)
+        settings.NEOM_IOC_WIRES = MagicMock()
+        config.ready()
+        settings.NEOM_IOC_WIRES.assert_called()
