@@ -29,48 +29,92 @@
 
 import functools
 from inspect import getfullargspec, unwrap
-from typing import Any, Callable, Dict, List
+from typing import Callable, ParamSpec, Tuple, TypeVar
 
 from django.template import Library, Node
-from django.template.base import Parser, Token
+from django.template.base import NodeList, Parser, Token
 from django.template.context import RequestContext
 from django.template.library import parse_bits
 
 __all__ = ["Library"]
 
+T = TypeVar("T")
+P = ParamSpec("P")
+
 
 class Library(Library):
-    def directtag(self, call):
-        argspec = getfullargspec(unwrap(call))[:-1]
-        call_name = call.__name__
-
+    def singletag(self, call: Callable[P, str]):
         @functools.wraps(call)
         def compile_function(parser: Parser, token: Token):
-            bits = token.split_contents()[1:]
-            args, kwargs = parse_bits(
-                parser,
-                bits,
-                *argspec,
-                False,
-                call_name,
-            )
-            return DirectNode(call, args, kwargs)
+            args, kwargs = self.__CallArguments(parser, token, call)
+            return SingleNode(call, args, kwargs)
 
-        self.tag(call_name, compile_function)
+        self.tag(call.__name__, compile_function)
         return call
 
+    def composetag(self, call: Callable[P, Tuple[str, str]]):
+        @functools.wraps(call)
+        def compile_function(parser: Parser, token: Token):
+            nodelist = parser.parse((f"end_{call.__name__}",))
+            parser.delete_first_token()
+            args, kwargs = self.__CallArguments(parser, token, call)
+            return ComposeNode(call, args, kwargs, nodelist)
 
-class DirectNode(Node):
-    def __init__(self, call: Callable, args: List[Any], kwargs: Dict[str, Any]):
+        self.tag(call.__name__, compile_function)
+        return call
+
+    @staticmethod
+    def __CallArguments(
+        parser: Parser, token: Token, call: Callable[P, T]
+    ) -> Tuple[str, P.args, P.kwargs]:
+        argspec = getfullargspec(unwrap(call))[:-1]
+        bits = token.split_contents()[1:]
+        args, kwargs = parse_bits(
+            parser,
+            bits,
+            *argspec,
+            False,
+            call.__name__,
+        )
+        return args, kwargs
+
+
+class ArgspecNodeBase(Node):
+    def __init__(self, call: Callable[P, T], args: P.args, kwargs: P.kwargs):
         self.call = call
         self.args = args
         self.kwargs = kwargs
+        super().__init__()
 
-    def render(self, context: RequestContext):
+    def _Call(self, context: RequestContext) -> T:
         args, kwargs = self.__ResolveArguments(context)
         return self.call(*args, **kwargs)
 
-    def __ResolveArguments(self, context: RequestContext):
+    def __ResolveArguments(
+        self, context: RequestContext
+    ) -> Tuple[P.args, P.kwargs]:
         args = [arg.resolve(context) for arg in self.args]
         kwargs = {k: v.resolve(context) for k, v in self.kwargs.items()}
         return args, kwargs
+
+
+class SingleNode(ArgspecNodeBase):
+    def render(self, context: RequestContext):
+        return self._Call(context)
+
+
+class ComposeNode(ArgspecNodeBase):
+    def __init__(
+        self,
+        call: Callable[P, Tuple[str, str]],
+        args: P.args,
+        kwargs: P.kwargs,
+        nodelist: NodeList,
+    ):
+        super().__init__(call, args, kwargs)
+        self.nodelist = nodelist
+
+    def render(self, context: RequestContext):
+        begin, end = self._Call(context)
+        body = self.nodelist.render(context)
+        return f"{begin}{body}{end}"

@@ -39,6 +39,7 @@ from neom.kit.md2.forms import fields as md2_fields
 from neom.kit.md2.forms import models as md2_models
 from neom.kit.md2.forms import widgets as md2_widgets
 from neom.kit.md2.views.generic.edit import ImproperlyConfigured, UpdateView
+from neom.kit.template.library import Library
 
 
 class ViewsGenericEditUpdateViewTestCase(TestCase):
@@ -221,20 +222,43 @@ class TagsTestCase(TestCase):
 
 
 class TemplateLibraryTestCase(TestCase):
-    def test_directtag(self):
-        from neom.kit.template.library import Library
+    def setUp(self):
+        self.library = Library()
+        self.engine = Engine()
+        self.engine.template_libraries["test_library"] = self.library
 
-        library = Library()
-
-        @library.directtag
+    def test_singletag(self):
+        @self.library.singletag
         def dummy(foo: str, bar: str = "bar"):
             return f"{foo}-{bar}"
 
-        engine = Engine()
-        engine.template_libraries["test_library"] = library
-
-        html = engine.from_string(
+        html = self.engine.from_string(
             "{% load test_library %}{% dummy 'foo' %}{% dummy 'oof' 'baz' %}"
         ).render(Context())
 
         self.assertEqual(html, "foo-baroof-baz")
+
+    def test_composetag(self):
+        @self.library.composetag
+        def foo(caption: str):
+            return f"<foo caption='{caption}'><sub-foo>", "</sub-foo></foo>"
+
+        @self.library.singletag
+        def bar(value: int):
+            return f"<bar>{value}</bar>"
+
+        html = self.engine.from_string(
+            "{% load test_library %}"
+            "{% foo 'dummy' %}"
+            "{% bar 1 %}"
+            "{% bar 2 %}"
+            "{% end_foo %}"
+        ).render(Context())
+
+        self.assertEqual(
+            html,
+            "<foo caption='dummy'><sub-foo>"
+            "<bar>1</bar>"
+            "<bar>2</bar>"
+            "</sub-foo></foo>",
+        )
