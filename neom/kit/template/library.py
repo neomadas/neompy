@@ -29,9 +29,10 @@
 
 import functools
 from inspect import getfullargspec, unwrap
-from typing import Callable, ParamSpec, Tuple, TypeVar
+from typing import Callable, Generic, ParamSpec, Tuple, TypeVar
 
-from django.template import Library, Node
+from django.template import Library as LibraryBase
+from django.template import Node
 from django.template.base import NodeList, Parser, Token
 from django.template.context import RequestContext
 from django.template.library import parse_bits
@@ -42,7 +43,7 @@ T = TypeVar("T")
 P = ParamSpec("P")
 
 
-class Library(Library):
+class Library(LibraryBase):
     def singletag(self, call: Callable[P, str]):
         @functools.wraps(call)
         def compile_function(parser: Parser, token: Token):
@@ -66,7 +67,7 @@ class Library(Library):
     @staticmethod
     def __CallArguments(
         parser: Parser, token: Token, call: Callable[P, T]
-    ) -> Tuple[str, P.args, P.kwargs]:
+    ) -> Tuple[P.args, P.kwargs]:
         argspec = getfullargspec(unwrap(call))[:-1]
         bits = token.split_contents()[1:]
         args, kwargs = parse_bits(
@@ -79,7 +80,7 @@ class Library(Library):
         return args, kwargs
 
 
-class ArgspecNodeBase(Node):
+class ArgspecNodeBase(Node, Generic[T]):
     def __init__(self, call: Callable[P, T], args: P.args, kwargs: P.kwargs):
         self.call = call
         self.args = args

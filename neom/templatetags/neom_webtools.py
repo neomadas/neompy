@@ -29,6 +29,7 @@
 
 import functools
 import string
+from typing import Dict
 
 from django import template
 
@@ -37,7 +38,7 @@ register = template.Library()
 CHS = string.ascii_lowercase
 CHSLEN = len(CHS)
 COUNT = -1
-KEYS = {}
+KEYS: Dict[str, str] = {}
 
 
 @functools.lru_cache(maxsize=1024)

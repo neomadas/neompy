@@ -77,7 +77,7 @@ class UpdateView(edit_views.UpdateView):
                 return md2_fields.SelectField(
                     choices=field.choices, **kwargs, widget=md2_widgets.Select
                 )
-            # else:
-            # return form_fields.IntegerField(...)
+            else:
+                return field.formfield(**kwargs)
 
         return field.formfield(**kwargs)
