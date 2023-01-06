@@ -72,12 +72,9 @@ class UpdateView(edit_views.UpdateView):
         if isinstance(field, model_fields.CharField):
             return md2_fields.TextField(**kwargs, widget=md2_widgets.TextInput)
 
-        if isinstance(field, model_fields.IntegerField):
-            if field.choices:
-                return md2_fields.SelectField(
-                    choices=field.choices, **kwargs, widget=md2_widgets.Select
-                )
-            else:
-                return field.formfield(**kwargs)
+        if isinstance(field, model_fields.IntegerField) and field.choices:
+            return md2_fields.SelectField(
+                choices=field.choices, **kwargs, widget=md2_widgets.Select
+            )
 
         return field.formfield(**kwargs)
