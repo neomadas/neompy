@@ -27,15 +27,18 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+from __future__ import annotations
+
 import functools
 from inspect import getfullargspec, unwrap
-from typing import Callable, Generic, ParamSpec, Tuple, TypeVar
+from typing import Callable, Generic, Tuple, TypeVar
 
 from django.template import Library as LibraryBase
 from django.template import Node
 from django.template.base import NodeList, Parser, Token
 from django.template.context import RequestContext
 from django.template.library import parse_bits
+from typing_extensions import ParamSpec  # TODO: 3.10
 
 __all__ = ["Library"]
 
