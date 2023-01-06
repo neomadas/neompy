@@ -41,42 +41,40 @@ __all__ = ["UpdateView"]
 
 class UpdateView(edit_views.UpdateView):
     def get_form_class(self):
-        if self.fields is not None and self.form_class:
-            raise ImproperlyConfigured(
-                "Only specify one of 'fields' or 'form_class'."
-            )
         if self.form_class:
+            if self.fields is not None:
+                raise ImproperlyConfigured(
+                    "Only specify one of 'fields' or 'form_class'."
+                )
+
             return self.form_class
         else:
+            if self.fields is None:
+                raise ImproperlyConfigured(
+                    "Using without the 'fields' attribute is prohibited."
+                )
+
             model = (
                 self.model
                 if self.model is not None
                 else self.get_queryset().model
             )
 
-            if self.fields is None:
-                raise ImproperlyConfigured(
-                    "Using without the 'fields' attribute is prohibited."
-                )
-
             return model_forms.modelform_factory(
                 model,
                 md2_model_forms.ModelForm,
                 fields=self.fields,
-                formfield_callback=_formfield_callback,
+                formfield_callback=self.__formfield_callback,
             )
 
+    @staticmethod
+    def __formfield_callback(field, **kwargs):
+        if isinstance(field, model_fields.CharField):
+            return md2_fields.TextField(**kwargs, widget=md2_widgets.TextInput)
 
-def _formfield_callback(field, **kwargs):
-    if isinstance(field, model_fields.CharField):
-        return md2_fields.TextField(**kwargs, widget=md2_widgets.TextInput)
-
-    if isinstance(field, model_fields.IntegerField):
-        if field.choices:
+        if isinstance(field, model_fields.IntegerField) and field.choices:
             return md2_fields.SelectField(
                 choices=field.choices, **kwargs, widget=md2_widgets.Select
             )
-        # else:
-        # return form_fields.IntegerField(...)
 
-    return field.formfield(**kwargs)
+        return field.formfield(**kwargs)

@@ -49,7 +49,7 @@ def neom_md2_style(parser: Parser, token: Token):
     return Md2StyleNode()
 
 
-@register.directtag
+@register.singletag
 def neom_md2_button_text(label: str):
     return (
         f'<button class="{_kt("mdc-button")}">'
@@ -59,7 +59,7 @@ def neom_md2_button_text(label: str):
     )
 
 
-@register.directtag
+@register.singletag
 def neom_md2_button_outlined(label: str):
     return (
         f'<button class="{_kt("mdc-button")} {_kt("mdc-button--outlined")}">'
@@ -69,7 +69,7 @@ def neom_md2_button_outlined(label: str):
     )
 
 
-@register.directtag
+@register.singletag
 def neom_md2_button_contained(label: str):
     return (
         f'<button class="{_kt("mdc-button")} {_kt("mdc-button--raised")}">'

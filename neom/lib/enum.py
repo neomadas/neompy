@@ -35,5 +35,5 @@ from django.db.models import IntegerChoices
 class IntEnum(PythonIntEnum):
     @classmethod
     def ToIntegerChoices(cls) -> IntegerChoices:
-        keys = [(key.name, key.value) for key in list(cls)]
+        keys = [(key.name, key.value) for key in cls]
         return IntegerChoices(f"{cls.__name__}Choices", keys)

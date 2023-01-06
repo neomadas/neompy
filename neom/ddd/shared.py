@@ -33,7 +33,8 @@ It's used to mark the domain role for classes and models defined in the domain.
 
 from __future__ import annotations
 
-from abc import ABC, ABCMeta, abstractmethod
+import contextlib
+from abc import ABCMeta, abstractmethod
 from functools import lru_cache, wraps
 from sys import version_info
 from types import CodeType, FunctionType
@@ -50,7 +51,7 @@ from typing import (
 )
 
 
-class Stuff(ABC):
+class Stuff:
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
 
@@ -255,10 +256,8 @@ def _idcache(fn=None, /, *, typed=False):
 
         @wraps(fn)
         def inner(*args, **kwds):
-            try:
+            with contextlib.suppress(TypeError):
                 return cached(*args, **kwds)
-            except TypeError:
-                pass
             return fn(*args, **kwds)
 
         return inner
