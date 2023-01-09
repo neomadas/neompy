@@ -262,3 +262,14 @@ class TemplateLibraryTestCase(TestCase):
             "<bar>2</bar>"
             "</sub-foo></foo>",
         )
+
+    def test_directtag(self):
+        @self.library.directtag
+        def dummy():
+            return "{{ foo }}"
+
+        html = self.engine.from_string(
+            "{% load test_library %}{% dummy %}"
+        ).render(Context({"foo": "dummy"}))
+
+        self.assertEqual(html, "dummy")

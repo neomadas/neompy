@@ -67,6 +67,15 @@ class Library(LibraryBase):
         self.tag(call.__name__, compile_function)
         return call
 
+    def directtag(self, call: Callable[P, str]):
+        @functools.wraps(call)
+        def compile_function(parser: Parser, token: Token):
+            args, kwargs = self.__CallArguments(parser, token, call)
+            return DirectNode(call, args, kwargs)
+
+        self.tag(call.__name__, compile_function)
+        return call
+
     @staticmethod
     def __CallArguments(
         parser: Parser, token: Token, call: Callable[P, T]
@@ -122,3 +131,10 @@ class ComposeNode(ArgspecNodeBase):
         begin, end = self._Call(context)
         body = self.nodelist.render(context)
         return f"{begin}{body}{end}"
+
+
+class DirectNode(ArgspecNodeBase):
+    def render(self, context: RequestContext):
+        return context.template.engine.from_string(self._Call(context)).render(
+            context
+        )
