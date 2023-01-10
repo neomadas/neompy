@@ -28,6 +28,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 from html.parser import HTMLParser
+from typing import Optional, Type
 from unittest import TestCase
 
 from django import forms
@@ -40,6 +41,7 @@ from neom.kit.md2.forms import models as md2_models
 from neom.kit.md2.forms import widgets as md2_widgets
 from neom.kit.md2.views.generic.edit import ImproperlyConfigured, UpdateView
 from neom.kit.template.library import Library
+from neom.templatetags.neom_webtools import keytoken as _kt
 
 
 class ViewsGenericEditUpdateViewTestCase(TestCase):
@@ -178,12 +180,30 @@ class FormWidgetsTestCase(TestCase):
         self.assertIsNone(context["field"])
 
 
-class TagsTestCase(TestCase):
-    def test_style(self):
-        html = Template("{% load neom_md2 %}{% neom_md2_style %}").render(
-            Context()
-        )
+class TagsMixin:
 
+    defaultcontext: Context = Context()
+
+    def Render(self, content: str, context: Optional[Context] = None) -> str:
+        if context is None:
+            context = self.defaultcontext
+        html = Template(content).render(context)
+        return html
+
+    def Parsed(
+        self,
+        Parser: Type[HTMLParser],
+        content: str,
+        context: Optional[Context] = None,
+    ) -> HTMLParser:
+        html = self.Render(content, context)
+        parser = Parser()
+        parser.feed(html)
+        return parser
+
+
+class TagsTestCase(TestCase, TagsMixin):
+    def test_style(self):
         class StyleParser(HTMLParser):
             has_style = False
 
@@ -191,34 +211,155 @@ class TagsTestCase(TestCase):
                 if tag == "style":
                     self.has_style = True
 
-        parser = StyleParser()
-        parser.feed(html)
+        parser = self.Parsed(
+            StyleParser, "{% load neom_md2 %}{% neom_md2_style %}"
+        )
 
         self.assertTrue(parser.has_style)
 
     def test_buttons(self):
+        class ButtonParser(HTMLParser):
+            has_button = False
+            label = ""
+
+            def handle_starttag(self, tag, attrs):
+                if tag == "button":
+                    self.has_button = True
+
+            def handle_data(self, data):
+                if data:
+                    self.label = data
+
         for kind in ("text", "outlined", "contained"):
-            html = Template(
-                f"{{% load neom_md2 %}}{{% neom_md2_button_{kind} 'foo' %}}"
-            ).render(Context())
-
-            class ButtonParser(HTMLParser):
-                has_button = False
-                label = ""
-
-                def handle_starttag(self, tag, attrs):
-                    if tag == "button":
-                        self.has_button = True
-
-                def handle_data(self, data):
-                    if data:
-                        self.label = data
-
-            parser = ButtonParser()
-            parser.feed(html)
+            parser = self.Parsed(
+                ButtonParser,
+                f"{{% load neom_md2 %}}{{% neom_md2_button_{kind} 'foo' %}}",
+            )
 
             self.assertTrue(parser.has_button)
             self.assertEqual(parser.label, "foo")
+
+
+class TagsCardTestCase(TestCase, TagsMixin):
+    def test_card_elevated(self):
+        self.SetParser(
+            "{% load neom_md2 %}"
+            "{% neom_md2_card_elevated %}dummy{% end_neom_md2_card_elevated %}"
+        )
+
+        self.assertBasicParsedCard()
+
+    def test_card_outlined(self):
+        self.SetParser(
+            "{% load neom_md2 %}"
+            "{% neom_md2_card_outlined %}dummy{% end_neom_md2_card_outlined %}"
+        )
+
+        self.assertBasicParsedCard()
+
+        self.assertIn(_kt("mdc-card--outlined"), self.parser.divs[0]["class"])
+
+    def SetParser(self, content: str):
+        self.parser = self.Parsed(self.CardParser, content)
+
+    def assertBasicParsedCard(self):
+        self.assertEqual(len(self.parser.divs), 1)
+        self.assertEqual(len(self.parser.datas), 1)
+
+        self.assertIn(_kt("mdc-card"), self.parser.divs[0]["class"])
+        self.assertEqual("dummy", self.parser.datas[0])
+
+    class CardParser(HTMLParser):
+        def __init__(self):
+            super().__init__()
+            self.divs = []
+            self.datas = []
+
+        def handle_starttag(self, tag, attrs):
+            if tag == "div":
+                self.divs.append(dict(attrs))
+
+        def handle_data(self, data):
+            self.datas.append(data)
+
+
+class TagsCardActionsTestCase(TestCase, TagsMixin):
+    def test_card_with_actions(self):
+        parser = self.Parsed(
+            self.CardActionsParser,
+            "{% load neom_md2 %}"
+            "{% neom_md2_card_elevated %}"
+            "{% neom_md2_card_actions %}"
+            "{% neom_md2_card_action_button 'foo' %}"
+            "{% neom_md2_card_action_link 'bar' 'baz' %}"
+            "{% end_neom_md2_card_actions %}"
+            "{% end_neom_md2_card_elevated %}",
+        )
+
+        self.assertCard(parser)
+        self.assertEqual(_kt("mdc-card__actions"), parser.divs[1]["class"])
+
+    def test_card_with_actions_full_bleed(self):
+        parser = self.Parsed(
+            self.CardActionsParser,
+            "{% load neom_md2 %}"
+            "{% neom_md2_card_elevated %}"
+            "{% neom_md2_card_actions_full_bleed %}"
+            "{% neom_md2_card_action_button 'foo' %}"
+            "{% neom_md2_card_action_link 'bar' 'baz' %}"
+            "{% end_neom_md2_card_actions_full_bleed %}"
+            "{% end_neom_md2_card_elevated %}",
+        )
+
+        self.assertCard(parser)
+        self.assertEqual(
+            f'{_kt("mdc-card__actions")}'
+            f' {_kt("mdc-card__actions--full-bleed")}',
+            parser.divs[1]["class"],
+        )
+
+    class CardActionsParser(HTMLParser):
+        def __init__(self):
+            super().__init__()
+            self.divs = []
+            self.buttons = []
+            self.anchors = []
+            self.datas = []
+
+        def handle_starttag(self, tag, attrs):
+            if tag == "div":
+                self.divs.append(dict(attrs))
+            if tag == "button":
+                self.buttons.append(dict(attrs))
+            if tag == "a":
+                self.anchors.append(dict(attrs))
+
+        def handle_data(self, data):
+            self.datas.append(data)
+
+    def assertCard(self, parser: CardActionsParser):
+        self.assertEqual(4, len(parser.divs))
+        self.assertEqual(_kt("mdc-card"), parser.divs[0]["class"])
+
+        self.assertEqual(1, len(parser.buttons))
+        self.assertIn(
+            _kt("mdc-card__action--button"), parser.buttons[0]["class"]
+        )
+        self.assertIn(_kt("mdc-card__action"), parser.buttons[0]["class"])
+        self.assertIn(_kt("mdc-button"), parser.buttons[0]["class"])
+
+        self.assertEqual(1, len(parser.anchors))
+        self.assertIn(
+            _kt("mdc-card__action--button"), parser.anchors[0]["class"]
+        )
+        self.assertIn(_kt("mdc-card__action"), parser.anchors[0]["class"])
+        self.assertIn(_kt("mdc-button"), parser.anchors[0]["class"])
+        self.assertIn("href", parser.anchors[0])
+        self.assertEqual("baz", parser.anchors[0]["href"])
+
+        self.assertEqual(2, len(parser.datas))
+        self.assertEqual("foo", parser.datas[0])
+        self.assertEqual("bar", parser.datas[1])
 
 
 class TemplateLibraryTestCase(TestCase):
