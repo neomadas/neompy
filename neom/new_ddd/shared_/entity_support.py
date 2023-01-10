@@ -33,43 +33,43 @@ It's used to mark the domain role for classes and models defined in the domain.
 
 from __future__ import annotations
 
-from typing import Type, TypeVar
+from typing import Generic, TypeVar, cast
 
 from .entity import Entity
 from .identity import Identity
 
 __all__ = ("EntitySupport",)
 
-T = TypeVar("T")
-ID = TypeVar("ID", bound=Identity)
+T = TypeVar("T", bound=Entity)
+ID = TypeVar("ID")
 
 
-class EntitySupport(Entity[T, ID]):
+class EntitySupport(Entity[T, ID], Generic[T, ID]):
     """EntitySupport."""
 
     __slots__ = ()
 
     _identityField = None
 
-    def Identity(self) -> ID:
-        if not self._identityField:
-            self._identityField = self._LazyIdentityDetermination()
-        return getattr(self, self._identityField.name)
-
     def SameIdentityAs(self, other: T) -> bool:
-        return other and self.Identity() == other.Identity()
+        return bool(other and self.Identity() == other.Identity())
 
-    def __eq__(self, other: T) -> bool:
-        return (self is other) or (
-            other
-            and isinstance(other, type(self))
-            and self.SameIdentityAs(other)
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Entity):
+            return NotImplemented
+        return bool(
+            (self is other)
+            or (
+                other
+                and isinstance(other, type(self))
+                and self.SameIdentityAs(cast(T, other))
+            )
         )
 
     def __hash__(self) -> int:
         return hash(self.Identity())
 
-    def _LazyIdentityDetermination(self) -> Type[ID]:
+    def _LazyIdentityDetermination(self) -> Identity[ID]:
         identityField = None
         for field in self._fields.values():
             if isinstance(field, Identity):
@@ -79,3 +79,8 @@ class EntitySupport(Entity[T, ID]):
         if not identityField:
             raise TypeError("Must have a unique identity field")
         return identityField
+
+    def Identity(self) -> ID:
+        if not self._identityField:
+            self._identityField = self._LazyIdentityDetermination()
+        return getattr(self, cast(Identity, self._identityField).name)

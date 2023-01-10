@@ -33,12 +33,16 @@ It's used to mark the domain role for classes and models defined in the domain.
 
 from __future__ import annotations
 
+from typing import Generic, TypeVar
+
 from .stuff import Field
 
 __all__ = ("Identity",)
 
+T = TypeVar("T")
 
-class Identity(Field):  # pylint:disable=too-few-public-methods
+
+class Identity(Field, Generic[T]):  # pylint:disable=too-few-public-methods
     """
     Every class that inherits from EntitySupport must have exactly one identity.
     """

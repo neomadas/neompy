@@ -32,7 +32,7 @@
 
 from __future__ import annotations
 
-from typing import Final, TypeVar
+from typing import TypeVar
 
 from .abstract_specification import AbstractSpecification
 from .specification import Specification
@@ -46,7 +46,7 @@ class NotSpecification(AbstractSpecification[T]):
     """NOT specification creates a new specifcation that is the inverse (NOT)
     of another specification."""
 
-    def __init__(self, spec: Final[Specification[T]]):
+    def __init__(self, spec: Specification[T]):
         """New NOT specification based on another spec."""
         self.spec = spec
 

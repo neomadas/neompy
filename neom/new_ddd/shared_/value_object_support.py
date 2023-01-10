@@ -33,24 +33,26 @@ It's used to mark the domain value object role for classes defined in domain."""
 from __future__ import annotations
 
 from copy import deepcopy
-from typing import TypeVar, cast, final
+from typing import Generic, TypeVar, cast, final
 
 from .value_object import Stuff, ValueObject
 
 __all__ = ["ValueObjectSupport"]
 
-T = TypeVar("T")
+T = TypeVar("T", bound=ValueObject)
 
 
-class ValueObjectSupport(ValueObject[T]):
+class ValueObjectSupport(ValueObject[T], Generic[T]):
     """Base class for value objects."""
 
-    def __eq__(self, other: T) -> bool:
-        return self.SameValueAs(other)
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, ValueObjectSupport):
+            return NotImplemented
+        return self.SameValueAs(cast(T, other))
 
     @final
     def SameValueAs(self, other: T) -> bool:
-        return (
+        return bool(
             other
             and isinstance(other, type(self))
             and self.ReflectionEquals(cast(Stuff, other))
@@ -58,4 +60,4 @@ class ValueObjectSupport(ValueObject[T]):
 
     @final
     def Copy(self) -> T:
-        return deepcopy(self)
+        return cast(T, deepcopy(self))

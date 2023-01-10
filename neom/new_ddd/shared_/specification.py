@@ -61,5 +61,5 @@ class Specification(ABC, Generic[T]):
         and another specification."""
 
     @abstractmethod
-    def Not(self, specification: Specification[T]) -> Specification[T]:
+    def Not(self) -> Specification[T]:
         """New specification that is NOT operation of ``self`` specification."""

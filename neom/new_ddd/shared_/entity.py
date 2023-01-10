@@ -36,12 +36,12 @@ from __future__ import annotations
 from abc import abstractmethod
 from typing import Generic, TypeVar
 
-from .stuff import Field, Stuff
+from .stuff import Stuff
 
 __all__ = ("Entity",)
 
 T = TypeVar("T")
-ID = TypeVar("ID", bound=Field)
+ID = TypeVar("ID")
 
 
 class Entity(Stuff, Generic[T, ID]):
