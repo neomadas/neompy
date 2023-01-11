@@ -44,9 +44,17 @@ __all__ = (
 register = Library()
 
 
+# -----------------------------------------------------------------------------
+# style
+
+
 @register.tag
 def neom_md2_style(parser: Parser, token: Token):
     return Md2StyleNode()
+
+
+# -----------------------------------------------------------------------------
+# buttons
 
 
 @register.singletag
@@ -82,3 +90,56 @@ class Md2StyleNode(Node):
     def render(self, context: RequestContext):
         template = context.template.engine.get_template("neom/kit/md2/web.css")
         return f"<style>{template.render(context)}</style>"
+
+
+# -----------------------------------------------------------------------------
+# cards
+
+
+@register.composetag
+def neom_md2_card_elevated():
+    return f'<div class="{_kt("mdc-card")}">', "</div>"
+
+
+@register.composetag
+def neom_md2_card_outlined():
+    return (
+        f'<div class="{_kt("mdc-card")} {_kt("mdc-card--outlined")}">',
+        "</div>",
+    )
+
+
+@register.composetag
+def neom_md2_card_actions():
+    return f'<div class="{_kt("mdc-card__actions")}">', "</div>"
+
+
+@register.composetag
+def neom_md2_card_actions_full_bleed():
+    return (
+        "<div"
+        f' class="{_kt("mdc-card__actions")} '
+        f'{_kt("mdc-card__actions--full-bleed")}">',
+        "</div>",
+    )
+
+
+@register.singletag
+def neom_md2_card_action_button(label: str):
+    return (
+        "<button"
+        f' class="{_kt("mdc-button")} {_kt("mdc-card__action")} '
+        f'{_kt("mdc-card__action--button")}"><div'
+        f' class="{_kt("mdc-button__ripple")}"></div><span'
+        f' class="{_kt("mdc-button__label")}">{label}</span></button>'
+    )
+
+
+@register.singletag
+def neom_md2_card_action_link(label: str, link: str):
+    return (
+        f'<a class="{_kt("mdc-button")} {_kt("mdc-card__action")} '
+        f'{_kt("mdc-card__action--button")}"'
+        f' href="{link}"><div class="{_kt("mdc-button__ripple")}"></div><span'
+        f' class="{_kt("mdc-button__label")}">{label}</span></a>'
+    )

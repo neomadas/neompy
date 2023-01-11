@@ -74,6 +74,8 @@ class EntitySupportTestCase(TestCase):
         self.assertEqual(hash(e1), hash(e2))
         self.assertNotEqual(hash(e2), hash(e3))
 
+        self.assertNotEqual(e1, "e1")
+
     class NoIdentityEntity(EntitySupport[ForwardRef("NoIdentityEntity"), str]):
         pass
 

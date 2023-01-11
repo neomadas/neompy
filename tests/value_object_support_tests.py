@@ -61,6 +61,8 @@ class ValueObjectSupportTestCase(TestCase):
         self.assertTrue(vo1.SameValueAs(vo2))
         self.assertFalse(vo2.SameValueAs(vo3))
 
+        self.assertNotEqual(vo1, "vo1")
+
     def test_copy(self):
         """Test Copy method."""
 

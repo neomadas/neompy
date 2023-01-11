@@ -31,7 +31,7 @@
 
 from __future__ import annotations
 
-from typing import Final, TypeVar
+from typing import TypeVar
 
 from .specification import Specification
 
@@ -44,12 +44,12 @@ class AbstractSpecification(Specification[T]):
     """Base of composite ``Specification`` with ``and``, ``or`` and ``not``
     default implementations."""
 
-    def And(self, specification: Final[Specification[T]]) -> Specification[T]:
+    def And(self, specification: Specification[T]) -> Specification[T]:
         from .and_specification import AndSpecification  # pylint:disable=C0415
 
         return AndSpecification(self, specification)
 
-    def Or(self, specification: Final[Specification[T]]) -> Specification[T]:
+    def Or(self, specification: Specification[T]) -> Specification[T]:
         from .or_specification import OrSpecification  # pylint:disable=C0415
 
         return OrSpecification(self, specification)

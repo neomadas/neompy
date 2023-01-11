@@ -74,7 +74,7 @@ class ValueObjectDeclarationTestCase(TestCase):
     def test_inheritance(self):
         """Test value object inheritance."""
 
-        class PersonalInfo(ValueObject):
+        class PersonalInfo(ValueObject["PersonalInfo"]):
             """Dummy."""
 
             name: Field[str]
@@ -91,7 +91,7 @@ class ValueObjectDeclarationTestCase(TestCase):
 
             birth: Field[datetime]
 
-            def SameValueAs(self, other: Person) -> bool:
+            def SameValueAs(self, other: PersonalInfo) -> bool:
                 return (
                     super().SameValueAs(cast(PersonalInfo, other))
                     and self.birth == other.birth

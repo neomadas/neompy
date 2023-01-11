@@ -32,7 +32,7 @@
 
 from __future__ import annotations
 
-from typing import Final, TypeVar
+from typing import TypeVar
 
 from .abstract_specification import AbstractSpecification
 from .specification import Specification
@@ -46,9 +46,7 @@ class OrSpecification(AbstractSpecification[T]):
     """OR specification creates a new specifcation that is the OR
     of two another specifications."""
 
-    def __init__(
-        self, spec1: Final[Specification[T]], spec2: Final[Specification[T]]
-    ):
+    def __init__(self, spec1: Specification[T], spec2: Specification[T]):
         """New OR specification based on two another spec."""
         self.spec1 = spec1
         self.spec2 = spec2
