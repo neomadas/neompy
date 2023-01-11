@@ -1,5 +1,9 @@
 # Copyright Neomadas, Inc. All rights reserved.
 repos:
+  - repo: https://github.com/gcca/glic
+    rev: 8caef08
+    hooks:
+      - id: glic
   - repo: https://github.com/psf/black
     rev: 22.3.0
     hooks:
