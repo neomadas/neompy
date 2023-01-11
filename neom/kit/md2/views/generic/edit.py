@@ -1,4 +1,4 @@
-# Copyright 2022 neomadas-dev
+# Copyright 2023 neomadas-dev
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are
@@ -64,11 +64,11 @@ class UpdateView(edit_views.UpdateView):
                 model,
                 md2_model_forms.ModelForm,
                 fields=self.fields,
-                formfield_callback=self.__formfield_callback,
+                formfield_callback=self._formfield_callback,
             )
 
     @staticmethod
-    def __formfield_callback(field, **kwargs):
+    def _formfield_callback(field, **kwargs):
         if isinstance(field, model_fields.CharField):
             return md2_fields.TextField(**kwargs, widget=md2_widgets.TextInput)
 
