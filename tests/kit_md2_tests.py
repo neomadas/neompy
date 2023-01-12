@@ -227,6 +227,28 @@ class TagsTestCase(TestCase, TagsMixin):
 
         self.assertEqual(parser.style_content, expected_style_content)
 
+    def test_icons(self):
+        class StyleParser(HTMLParser):
+            has_style = False
+            style_content = None
+
+            def handle_starttag(self, tag, attrs):
+                if tag == "style":
+                    self.has_style = True
+
+            def handle_data(self, data):
+                self.style_content = data
+
+        parser = self.Parsed(
+            StyleParser, "{% load neom_md2 %}{% neom_md2_icons %}"
+        )
+
+        self.assertTrue(parser.has_style)
+
+        from neom.kit.md2.templatetags.neom_md2 import _icons
+
+        self.assertEqual(parser.style_content, _icons.content)
+
     def test_style_script(self):
         class Parser(HTMLParser):
             has_style = False

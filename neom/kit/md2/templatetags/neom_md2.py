@@ -30,6 +30,8 @@
 from neom.kit.template.library import Library
 from neom.templatetags.neom_webtools import keytoken as _kt
 
+from . import _icons
+
 __all__ = (
     "neom_md2_button_contained",
     "neom_md2_button_outlined",
@@ -40,6 +42,7 @@ __all__ = (
     "neom_md2_card_actions_full_bleed",
     "neom_md2_card_elevated",
     "neom_md2_card_outlined",
+    "neom_md2_icons",
     "neom_md2_style",
     "neom_md2_style_script",
 )
@@ -54,6 +57,11 @@ register = Library()
 @register.directtag
 def neom_md2_style():
     return '<style>{% include "neom/kit/md2/web.css" %}</style>'
+
+
+@register.singletag
+def neom_md2_icons():
+    return f"<style>{_icons.content}</style>"
 
 
 @register.directtag
