@@ -27,13 +27,13 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from neom.templatetags.neom_webtools import keytoken as _kt
-
 import os.path
+
+from neom.templatetags.neom_webtools import keytoken as _kt
 
 base_dir = os.path.dirname(__file__)
 
-with open(os.path.join(base_dir, '_icons.raw')) as f:
+with open(os.path.join(base_dir, "_icons.raw")) as f:
     _icons = f.read()
 
 content = (
