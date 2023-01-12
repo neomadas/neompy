@@ -27,10 +27,6 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from django.template import Node
-from django.template.base import Parser, Token
-from django.template.context import RequestContext
-
 from neom.kit.template.library import Library
 from neom.templatetags.neom_webtools import keytoken as _kt
 
@@ -45,12 +41,20 @@ register = Library()
 
 
 # -----------------------------------------------------------------------------
-# style
+# head
 
 
-@register.tag
-def neom_md2_style(parser: Parser, token: Token):
-    return Md2StyleNode()
+@register.directtag
+def neom_md2_style():
+    return '<style>{% include "neom/kit/md2/web.css" %}</style>'
+
+
+@register.directtag
+def neom_md2_style_script():
+    return (
+        '<style>{% include "neom/kit/md2/web.css" %}</style>'
+        '<script>{% include "neom/kit/md2/web.js" %}</script>'
+    )
 
 
 # -----------------------------------------------------------------------------
@@ -84,12 +88,6 @@ def neom_md2_button_contained(label: str):
         f'<span class="{_kt("mdc-button__label")}">{label}</span>'
         "</button>"
     )
-
-
-class Md2StyleNode(Node):
-    def render(self, context: RequestContext):
-        template = context.template.engine.get_template("neom/kit/md2/web.css")
-        return f"<style>{template.render(context)}</style>"
 
 
 # -----------------------------------------------------------------------------

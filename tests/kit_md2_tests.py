@@ -206,16 +206,59 @@ class TagsTestCase(TestCase, TagsMixin):
     def test_style(self):
         class StyleParser(HTMLParser):
             has_style = False
+            style_content = None
 
             def handle_starttag(self, tag, attrs):
                 if tag == "style":
                     self.has_style = True
+
+            def handle_data(self, data):
+                self.style_content = data
 
         parser = self.Parsed(
             StyleParser, "{% load neom_md2 %}{% neom_md2_style %}"
         )
 
         self.assertTrue(parser.has_style)
+
+        expected_style_content = self.Render(
+            '{% include "neom/kit/md2/web.css" %}'
+        )
+
+        self.assertEqual(parser.style_content, expected_style_content)
+
+    def test_style_script(self):
+        class Parser(HTMLParser):
+            has_style = False
+            has_script = False
+            datas = []
+
+            def handle_starttag(self, tag, attrs):
+                if tag == "style":
+                    self.has_style = True
+
+                if tag == "script":
+                    self.has_script = True
+
+            def handle_data(self, data):
+                self.datas.append(data)
+
+        parser = self.Parsed(
+            Parser, "{% load neom_md2 %}{% neom_md2_style_script %}"
+        )
+
+        self.assertTrue(parser.has_style)
+        self.assertTrue(parser.has_script)
+
+        expected_style_content = self.Render(
+            '{% include "neom/kit/md2/web.css" %}'
+        )
+        expected_script_content = self.Render(
+            '{% include "neom/kit/md2/web.js" %}'
+        )
+
+        self.assertEqual(parser.datas[0], expected_style_content)
+        self.assertEqual(parser.datas[1], expected_script_content)
 
     def test_buttons(self):
         class ButtonParser(HTMLParser):
