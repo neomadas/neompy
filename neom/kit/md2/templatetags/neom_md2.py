@@ -27,30 +27,49 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from django.template import Node
-from django.template.base import Parser, Token
-from django.template.context import RequestContext
-
 from neom.kit.template.library import Library
 from neom.templatetags.neom_webtools import keytoken as _kt
+
+from . import _icons
 
 __all__ = (
     "neom_md2_button_contained",
     "neom_md2_button_outlined",
     "neom_md2_button_text",
+    "neom_md2_card_actions",
+    "neom_md2_card_action_button",
+    "neom_md2_card_action_link",
+    "neom_md2_card_actions_full_bleed",
+    "neom_md2_card_elevated",
+    "neom_md2_card_outlined",
+    "neom_md2_icons",
     "neom_md2_style",
+    "neom_md2_style_script",
 )
 
 register = Library()
 
 
 # -----------------------------------------------------------------------------
-# style
+# head
 
 
-@register.tag
-def neom_md2_style(parser: Parser, token: Token):
-    return Md2StyleNode()
+@register.directtag
+def neom_md2_style():
+    return '<style>{% include "neom/kit/md2/web.css" %}</style>'
+
+
+@register.singletag
+def neom_md2_icons():
+    return f"<style>{_icons.content}</style>"
+
+
+@register.directtag
+def neom_md2_style_script():
+    return (
+        '<style>{% include "neom/kit/md2/web.css" %}</style>'
+        '<script>{% include "neom/kit/md2/web.js" %}</script>'
+    )
 
 
 # -----------------------------------------------------------------------------
@@ -84,12 +103,6 @@ def neom_md2_button_contained(label: str):
         f'<span class="{_kt("mdc-button__label")}">{label}</span>'
         "</button>"
     )
-
-
-class Md2StyleNode(Node):
-    def render(self, context: RequestContext):
-        template = context.template.engine.get_template("neom/kit/md2/web.css")
-        return f"<style>{template.render(context)}</style>"
 
 
 # -----------------------------------------------------------------------------
